@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="th">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>AI สุขภาพ</title>
+    <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        background: #f5f7fb;
+        margin: 0;
+        padding: 16px;
+        color: #1f2937;
+      }
+      .card {
+        background: #fff;
+        border-radius: 14px;
+        padding: 16px;
+        margin-bottom: 14px;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.06);
+      }
+      .muted {
+        color: #6b7280;
+        font-size: 14px;
+      }
+      .error {
+        color: #b91c1c;
+        background: #fee2e2;
+        padding: 12px;
+        border-radius: 10px;
+      }
+      .row {
+        margin: 6px 0;
+      }
+      .summary-line {
+        margin: 6px 0;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="app" class="card">เริ่มต้นโหลด...</div>
+
+    <script>
+      const LIFF_ID = '2009768848-KhIIGtbn';
+      const DASHBOARD_API_BASE = 'https://script.google.com/macros/s/AKfycbyD57P3ET66K1QiYeAHhL8eLQVwiSIdd1eUe5EdfJ7AsID4_qQAfvB4LUq1eLRF9Fl_/exec';
+
+      function setHtml(html) {
+        document.getElementById('app').innerHTML = html;
+      }
+
+      function setStatus(text) {
+        setHtml(`
+          <div><strong>AI สุขภาพ</strong></div>
+          <div class="muted" style="margin-top:8px;">${text}</div>
+        `);
+      }
+
+      function setError(text) {
+        setHtml(`<div class="error">${escapeHtml(text)}</div>`);
+      }
+
+      function escapeHtml(str) {
+        return String(str)
+          .replace(/&/g, '&amp;')
+          .replace(/</g, '&lt;')
+          .replace(/>/g, '&gt;')
+          .replace(/"/g, '&quot;')
+          .replace(/'/g, '&#039;');
+      }
+
+      function loadJsonp(url, timeoutMs = 15000) {
+        return new Promise((resolve, reject) => {
+          const callbackName = 'jsonp_cb_' + Date.now() + '_' + Math.floor(Math.random() * 100000);
+          const script = document.createElement('script');
+          const timer = setTimeout(() => {
+            cleanup();
+            reject(new Error('โหลดข้อมูลช้าเกินกำหนด'));
+          }, timeoutMs);
+
+          function cleanup() {
+            clearTimeout(timer);
+            if (script.parentNode) script.parentNode.removeChild(script);
+            try { delete window[callbackName]; } catch (_) { window[callbackName] = undefined; }
+          }
+
+          window[callbackName] = function(data) {
+            cleanup();
+            resolve(data);
+          };
+
+          script.onerror = function() {
+            cleanup();
+            reject(new Error('เรียก API ไม่สำเร็จ'));
+          };
+
+          script.src = url + (url.includes('?') ? '&' : '?') + 'callback=' + callbackName;
+          document.body.appendChild(script);
+        });
+      }
+
+      async function main() {
+        try {
+          setStatus('1/4 กำลัง init LIFF...');
+          await liff.init({ liffId: LIFF_ID });
+
+          setStatus('2/4 กำลังตรวจ login...');
+          if (!liff.isLoggedIn()) {
+            liff.login();
+            return;
+          }
+
+          setStatus('3/4 กำลังอ่าน user...');
+          const context = liff.getContext();
+          const userId = context && context.userId ? context.userId : null;
+
+          if (!userId) {
+            setError('ไม่พบ LINE userId');
+            return;
+          }
+
+          setStatus('4/4 กำลังดึงข้อมูลสุขภาพ...');
+          const url =
+            DASHBOARD_API_BASE +
+            '?mode=dashboard&userId=' +
+            encodeURIComponent(userId);
+
+          const data = await loadJsonp(url, 15000);
+
+          if (!data || data.ok !== true) {
+            setError((data && data.error) || 'ระบบดึงข้อมูลไม่สำเร็จ');
+            return;
+          }
+
+          if (!data.found) {
+            setHtml(`
+              <div class="card">
+                <div class="error">ยังไม่พบข้อมูลของคุณในระบบ</div>
+              </div>
+            `);
+            return;
+          }
+
+          renderDashboard(data);
+        } catch (err) {
+          setError(err.message || String(err));
+        }
+      }
+
+      function renderDashboard(data) {
+        const p = data.profile || {};
+        const latest = data.latest || {};
+        const appt = data.appointment || {};
+        const labs = data.labs || {};
+        const summary = data.aiSummaryDraft || [];
+
+        const bp =
+          latest.systolic != null && latest.diastolic != null
+            ? latest.systolic + '/' + latest.diastolic
+            : '-';
+
+        const migraineText =
+          latest.migrainePain == null
+            ? '-'
+            : latest.migrainePain === 1
+            ? 'ระดับ 1 (เล็กน้อย)'
+            : latest.migrainePain === 2
+            ? 'ระดับ 2 (ปานกลาง)'
+            : latest.migrainePain === 3
+            ? 'ระดับ 3 (มาก)'
+            : 'ระดับ ' + latest.migrainePain;
+
+        setHtml(`
+          <div class="card">
+            <div><strong>AI สุขภาพของฉัน</strong></div>
+            <div class="muted">อัปเดตล่าสุด: ${escapeHtml(data.updatedAt || '-')}</div>
+            <div class="row">ชื่อ: ${escapeHtml(p.fullName || p.lineDisplayName || '-')}</div>
+            <div class="row">น้ำหนัก: ${latest.weight ?? '-'}</div>
+            <div class="row">BMI: ${latest.bmi ?? '-'}</div>
+            <div class="row">ความดัน: ${escapeHtml(bp)}</div>
+            <div class="row">Migraine: ${escapeHtml(migraineText)}</div>
+          </div>
+
+          <div class="card">
+            <div><strong>ผลเลือดล่าสุด</strong></div>
+            <div class="row">FBS: ${labs.fbs ?? '-'}</div>
+            <div class="row">HbA1c: ${labs.hba1c ?? '-'}</div>
+            <div class="row">LDL: ${labs.ldl ?? '-'}</div>
+            <div class="row">Creatinine: ${labs.creatinine ?? '-'}</div>
+            <div class="row">AST: ${labs.ast ?? '-'}</div>
+            <div class="row">ALT: ${labs.alt ?? '-'}</div>
+          </div>
+
+          <div class="card">
+            <div><strong>นัดหมายครั้งถัดไป</strong></div>
+            <div class="row">วันที่: ${escapeHtml(appt.date || '-')}</div>
+            <div class="row">เวลา: ${escapeHtml(appt.time || '-')}</div>
+          </div>
+
+          <div class="card">
+            <div><strong>AI สรุปสุขภาพ</strong></div>
+            ${
+              summary.length
+                ? summary.map(x => `<div class="summary-line">• ${escapeHtml(x)}</div>`).join('')
+                : '<div class="row">ยังไม่มีสรุป</div>'
+            }
+          </div>
+        `);
+      }
+
+      main();
+    </script>
+  </body>
+</html>
