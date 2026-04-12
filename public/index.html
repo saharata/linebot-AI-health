@@ -68,20 +68,83 @@
       <div class="grid-2">
         <div class="metric"><div class="metric-label">FBS</div><div class="metric-value" id="fbsValue">-</div></div>
         <div class="metric"><div class="metric-label">HbA1c</div><div class="metric-value" id="hba1cValue">-</div></div>
-        <div class="metric"><div class="metric-label">BUN</div><div class="metric-value" id="bunValue">-</div></div>
         <div class="metric"><div class="metric-label">Creatinine</div><div class="metric-value" id="creatinineValue">-</div></div>
         <div class="metric"><div class="metric-label">Uric</div><div class="metric-value" id="uricValue">-</div></div>
         <div class="metric"><div class="metric-label">LDL</div><div class="metric-value" id="ldlValue">-</div></div>
+        <div class="metric"><div class="metric-label">HDL</div><div class="metric-value" id="hdlValue">-</div></div>
+        <div class="metric"><div class="metric-label">Cholesterol</div><div class="metric-value" id="cholesterolValue">-</div></div>
+        <div class="metric"><div class="metric-label">Triglyceride</div><div class="metric-value" id="triglycerideValue">-</div></div>
       </div>
     </div>
 
     <div class="card">
       <h2>กราฟแนวโน้มสุขภาพ</h2>
-      <div class="chart-wrap"><h3>ความดันย้อนหลัง</h3><canvas id="bpChart"></canvas><div class="empty" id="bpChartEmpty" style="display:none;">ยังไม่มีข้อมูลย้อนหลังพอสำหรับกราฟนี้</div></div>
-      <div class="chart-wrap"><h3>น้ำหนักย้อนหลัง</h3><canvas id="weightChart"></canvas><div class="empty" id="weightChartEmpty" style="display:none;">ยังไม่มีข้อมูลย้อนหลังพอสำหรับกราฟนี้</div></div>
-      <div class="chart-wrap"><h3>BMI ย้อนหลัง</h3><canvas id="bmiChart"></canvas><div class="empty" id="bmiChartEmpty" style="display:none;">ยังไม่มีข้อมูลย้อนหลังพอสำหรับกราฟนี้</div></div>
-      <div class="chart-wrap"><h3>น้ำตาลย้อนหลัง</h3><canvas id="sugarChart"></canvas><div class="empty" id="sugarChartEmpty" style="display:none;">ยังไม่มีข้อมูลย้อนหลังพอสำหรับกราฟนี้</div></div>
-      <div class="chart-wrap"><h3>ค่าไตย้อนหลัง</h3><canvas id="kidneyChart"></canvas><div class="empty" id="kidneyChartEmpty" style="display:none;">ยังไม่มีข้อมูลย้อนหลังพอสำหรับกราฟนี้</div></div>
+
+      <div class="chart-wrap">
+        <h3>ความดันย้อนหลัง</h3>
+        <canvas id="bpChart"></canvas>
+        <div class="empty" id="bpChartEmpty" style="display:none;">ยังไม่มีข้อมูลย้อนหลังพอสำหรับกราฟนี้</div>
+      </div>
+
+      <div class="chart-wrap">
+        <h3>น้ำหนักย้อนหลัง</h3>
+        <canvas id="weightChart"></canvas>
+        <div class="empty" id="weightChartEmpty" style="display:none;">ยังไม่มีข้อมูลย้อนหลังพอสำหรับกราฟนี้</div>
+      </div>
+
+      <div class="chart-wrap">
+        <h3>BMI ย้อนหลัง</h3>
+        <canvas id="bmiChart"></canvas>
+        <div class="empty" id="bmiChartEmpty" style="display:none;">ยังไม่มีข้อมูลย้อนหลังพอสำหรับกราฟนี้</div>
+      </div>
+
+      <div class="chart-wrap">
+        <h3>FBS ย้อนหลัง</h3>
+        <canvas id="fbsChart"></canvas>
+        <div class="empty" id="fbsChartEmpty" style="display:none;">ยังไม่มีข้อมูลย้อนหลังพอสำหรับกราฟนี้</div>
+      </div>
+
+      <div class="chart-wrap">
+        <h3>HbA1c ย้อนหลัง</h3>
+        <canvas id="hba1cChart"></canvas>
+        <div class="empty" id="hba1cChartEmpty" style="display:none;">ยังไม่มีข้อมูลย้อนหลังพอสำหรับกราฟนี้</div>
+      </div>
+
+      <div class="chart-wrap">
+        <h3>Creatinine ย้อนหลัง</h3>
+        <canvas id="creatinineChart"></canvas>
+        <div class="empty" id="creatinineChartEmpty" style="display:none;">ยังไม่มีข้อมูลย้อนหลังพอสำหรับกราฟนี้</div>
+      </div>
+
+      <div class="chart-wrap">
+        <h3>Uric ย้อนหลัง</h3>
+        <canvas id="uricChart"></canvas>
+        <div class="empty" id="uricChartEmpty" style="display:none;">ยังไม่มีข้อมูลย้อนหลังพอสำหรับกราฟนี้</div>
+      </div>
+
+      <div class="chart-wrap">
+        <h3>LDL ย้อนหลัง</h3>
+        <canvas id="ldlChart"></canvas>
+        <div class="empty" id="ldlChartEmpty" style="display:none;">ยังไม่มีข้อมูลย้อนหลังพอสำหรับกราฟนี้</div>
+      </div>
+
+      <div class="chart-wrap">
+        <h3>HDL ย้อนหลัง</h3>
+        <canvas id="hdlChart"></canvas>
+        <div class="empty" id="hdlChartEmpty" style="display:none;">ยังไม่มีข้อมูลย้อนหลังพอสำหรับกราฟนี้</div>
+      </div>
+
+      <div class="chart-wrap">
+        <h3>Cholesterol ย้อนหลัง</h3>
+        <canvas id="cholesterolChart"></canvas>
+        <div class="empty" id="cholesterolChartEmpty" style="display:none;">ยังไม่มีข้อมูลย้อนหลังพอสำหรับกราฟนี้</div>
+      </div>
+
+      <div class="chart-wrap">
+        <h3>Triglyceride ย้อนหลัง</h3>
+        <canvas id="triglycerideChart"></canvas>
+        <div class="empty" id="triglycerideChartEmpty" style="display:none;">ยังไม่มีข้อมูลย้อนหลังพอสำหรับกราฟนี้</div>
+      </div>
     </div>
 
     <div class="card">
@@ -102,11 +165,18 @@
   <script>
     let dashboardData = null;
     let configData = null;
+
     let bpChartObj = null;
     let weightChartObj = null;
     let bmiChartObj = null;
-    let sugarChartObj = null;
-    let kidneyChartObj = null;
+    let fbsChartObj = null;
+    let hba1cChartObj = null;
+    let creatinineChartObj = null;
+    let uricChartObj = null;
+    let ldlChartObj = null;
+    let hdlChartObj = null;
+    let cholesterolChartObj = null;
+    let triglycerideChartObj = null;
 
     function setText(id, value) {
       const el = document.getElementById(id);
@@ -186,18 +256,28 @@
     function buildLineChart(canvasId, emptyId, labels, datasets) {
       const canvas = document.getElementById(canvasId);
       const empty = document.getElementById(emptyId);
+
+      if (!canvas || !empty) return null;
+
       const hasData = datasets.some(ds => Array.isArray(ds.data) && ds.data.some(v => v !== null && v !== undefined));
       if (!hasData || labels.length === 0) {
         canvas.style.display = 'none';
         empty.style.display = 'block';
         return null;
       }
+
       canvas.style.display = 'block';
       empty.style.display = 'none';
+
       return new Chart(canvas, {
         type: 'line',
         data: { labels, datasets },
-        options: { responsive: true, maintainAspectRatio: true, interaction: { mode: 'index', intersect: false }, scales: { y: { beginAtZero: false } } }
+        options: {
+          responsive: true,
+          maintainAspectRatio: true,
+          interaction: { mode: 'index', intersect: false },
+          scales: { y: { beginAtZero: false } }
+        }
       });
     }
 
@@ -216,6 +296,7 @@
         box.textContent = 'ยังไม่มีนัดครั้งถัดไปในระบบ';
         return;
       }
+
       let text = `วันที่ ${appointment.date}`;
       if (appointment.time) text += ` เวลา ${appointment.time} น.`;
       if (appointment.note) text += `\nหมายเหตุ: ${appointment.note}`;
@@ -226,8 +307,12 @@
     async function loadDashboard() {
       try {
         setText('updatedAt', 'กำลังโหลด...');
+
         const health = await fetch('/api/health').then(r => r.json());
-        showSystemStatus(`Apps Script: ${health.appsScriptConfigured ? 'พร้อม' : 'ยังไม่ตั้ง'} | LIFF: ${health.liffConfigured ? 'พร้อม' : 'ยังไม่ตั้ง'} | OpenAI: ${health.openaiConfigured ? 'พร้อม' : 'ยังไม่ตั้ง'} | Model: ${health.model}`, false);
+        showSystemStatus(
+          `Apps Script: ${health.appsScriptConfigured ? 'พร้อม' : 'ยังไม่ตั้ง'} | LIFF: ${health.liffConfigured ? 'พร้อม' : 'ยังไม่ตั้ง'} | OpenAI: ${health.openaiConfigured ? 'พร้อม' : 'ยังไม่ตั้ง'} | Model: ${health.model}`,
+          false
+        );
 
         await loadConfig();
         const userId = await getUserIdSafe();
@@ -257,41 +342,80 @@
         setText('updatedAt', `อัปเดตล่าสุด: ${data.updatedAt || '-'}`);
         setText('chipName', `ชื่อ: ${profile.fullName || profile.lineDisplayName || '-'}`);
         setText('chipHN', `HN: ${profile.hn || '-'}`);
+
         setText('weightValue', latest.weight != null ? `${latest.weight} kg` : '-');
         setText('bmiValue', latest.bmi != null ? latest.bmi : '-');
         setText('bpValue', latest.systolic != null && latest.diastolic != null ? `${latest.systolic}/${latest.diastolic} mmHg` : '-');
         setText('migraineValue', migraineText(latest.migrainePain));
         setText('symptomsBox', latest.symptoms || 'ไม่มีข้อมูล');
+
         setText('fbsValue', labs.fbs ?? '-');
         setText('hba1cValue', labs.hba1c ?? '-');
-        setText('bunValue', labs.bun ?? '-');
         setText('creatinineValue', labs.creatinine ?? '-');
         setText('uricValue', labs.uric ?? '-');
         setText('ldlValue', labs.ldl ?? '-');
+        setText('hdlValue', labs.hdl ?? '-');
+        setText('cholesterolValue', labs.cholesterol ?? '-');
+        setText('triglycerideValue', labs.triglyceride ?? '-');
+
         renderSummary(summary);
         renderAppointment(appointment);
 
-        destroyIfExists(bpChartObj); destroyIfExists(weightChartObj); destroyIfExists(bmiChartObj); destroyIfExists(sugarChartObj); destroyIfExists(kidneyChartObj);
+        destroyIfExists(bpChartObj);
+        destroyIfExists(weightChartObj);
+        destroyIfExists(bmiChartObj);
+        destroyIfExists(fbsChartObj);
+        destroyIfExists(hba1cChartObj);
+        destroyIfExists(creatinineChartObj);
+        destroyIfExists(uricChartObj);
+        destroyIfExists(ldlChartObj);
+        destroyIfExists(hdlChartObj);
+        destroyIfExists(cholesterolChartObj);
+        destroyIfExists(triglycerideChartObj);
+
         bpChartObj = buildLineChart('bpChart', 'bpChartEmpty', normalizeTrendLabels(trends.systolic || []), [
           { label: 'Systolic', data: normalizeTrendValues(trends.systolic || []), tension: 0.3 },
           { label: 'Diastolic', data: normalizeTrendValues(trends.diastolic || []), tension: 0.3 }
         ]);
+
         weightChartObj = buildLineChart('weightChart', 'weightChartEmpty', normalizeTrendLabels(trends.weight || []), [
           { label: 'Weight', data: normalizeTrendValues(trends.weight || []), tension: 0.3 }
         ]);
+
         bmiChartObj = buildLineChart('bmiChart', 'bmiChartEmpty', normalizeTrendLabels(trends.bmi || []), [
           { label: 'BMI', data: normalizeTrendValues(trends.bmi || []), tension: 0.3 }
         ]);
-        const sugarBase = (trends.fbs || []).length ? (trends.fbs || []) : (trends.hba1c || []);
-        sugarChartObj = buildLineChart('sugarChart', 'sugarChartEmpty', normalizeTrendLabels(sugarBase), [
-          { label: 'FBS', data: normalizeTrendValues(trends.fbs || []), tension: 0.3 },
+
+        fbsChartObj = buildLineChart('fbsChart', 'fbsChartEmpty', normalizeTrendLabels(trends.fbs || []), [
+          { label: 'FBS', data: normalizeTrendValues(trends.fbs || []), tension: 0.3 }
+        ]);
+
+        hba1cChartObj = buildLineChart('hba1cChart', 'hba1cChartEmpty', normalizeTrendLabels(trends.hba1c || []), [
           { label: 'HbA1c', data: normalizeTrendValues(trends.hba1c || []), tension: 0.3 }
         ]);
-        const kidneyBase = (trends.creatinine || []).length ? (trends.creatinine || []) : ((trends.bun || []).length ? (trends.bun || []) : (trends.uric || []));
-        kidneyChartObj = buildLineChart('kidneyChart', 'kidneyChartEmpty', normalizeTrendLabels(kidneyBase), [
-          { label: 'Creatinine', data: normalizeTrendValues(trends.creatinine || []), tension: 0.3 },
-          { label: 'BUN', data: normalizeTrendValues(trends.bun || []), tension: 0.3 },
+
+        creatinineChartObj = buildLineChart('creatinineChart', 'creatinineChartEmpty', normalizeTrendLabels(trends.creatinine || []), [
+          { label: 'Creatinine', data: normalizeTrendValues(trends.creatinine || []), tension: 0.3 }
+        ]);
+
+        uricChartObj = buildLineChart('uricChart', 'uricChartEmpty', normalizeTrendLabels(trends.uric || []), [
           { label: 'Uric', data: normalizeTrendValues(trends.uric || []), tension: 0.3 }
+        ]);
+
+        ldlChartObj = buildLineChart('ldlChart', 'ldlChartEmpty', normalizeTrendLabels(trends.ldl || []), [
+          { label: 'LDL', data: normalizeTrendValues(trends.ldl || []), tension: 0.3 }
+        ]);
+
+        hdlChartObj = buildLineChart('hdlChart', 'hdlChartEmpty', normalizeTrendLabels(trends.hdl || []), [
+          { label: 'HDL', data: normalizeTrendValues(trends.hdl || []), tension: 0.3 }
+        ]);
+
+        cholesterolChartObj = buildLineChart('cholesterolChart', 'cholesterolChartEmpty', normalizeTrendLabels(trends.cholesterol || []), [
+          { label: 'Cholesterol', data: normalizeTrendValues(trends.cholesterol || []), tension: 0.3 }
+        ]);
+
+        triglycerideChartObj = buildLineChart('triglycerideChart', 'triglycerideChartEmpty', normalizeTrendLabels(trends.triglyceride || []), [
+          { label: 'Triglyceride', data: normalizeTrendValues(trends.triglyceride || []), tension: 0.3 }
         ]);
       } catch (err) {
         console.error(err);
@@ -305,19 +429,24 @@
         setText('summaryBox', 'ยังไม่มี dashboard data สำหรับส่งเข้า AI');
         return;
       }
+
       const box = document.getElementById('summaryBox');
       box.textContent = 'กำลังให้ AI สรุป...';
+
       try {
         const res = await fetch('/api/ai-summary', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(dashboardData)
         });
+
         const data = await res.json();
+
         if (!data.ok) {
           box.textContent = 'AI error: ' + (data.error || 'unknown error');
           return;
         }
+
         box.textContent = data.text || 'ยังไม่ได้ข้อความจาก AI';
       } catch (err) {
         box.textContent = 'AI error: ' + (err.message || String(err));
@@ -327,7 +456,9 @@
     document.getElementById('ruleSummaryBtn').addEventListener('click', () => {
       renderSummary(dashboardData?.aiSummaryDraft || []);
     });
+
     document.getElementById('aiSummaryBtn').addEventListener('click', runAISummary);
+
     window.addEventListener('load', loadDashboard);
   </script>
 </body>
