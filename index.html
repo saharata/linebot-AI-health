@@ -1,254 +1,334 @@
-<script>
-  const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxCIjzzeoKkNJQVxgBrKiJCix_q9DYpmxW0loXFfg4FMCiGgjaH39KST2m8A-aNCmOz/exec";
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AI สุขภาพ Pro</title>
+  <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    body { margin:0; font-family: Arial, sans-serif; background:#f3f4f6; color:#1f2937; }
+    .container { max-width:920px; margin:0 auto; padding:20px 14px 40px; }
+    .card { background:#fff; border-radius:22px; padding:18px; margin-bottom:16px; box-shadow:0 2px 10px rgba(0,0,0,.05); }
+    h1,h2,h3 { margin:0 0 10px; }
+    .muted { color:#6b7280; font-size:14px; }
+    .chips { display:flex; gap:10px; flex-wrap:wrap; margin-top:12px; }
+    .chip { background:#eef2ff; color:#3730a3; padding:10px 14px; border-radius:999px; font-weight:bold; }
+    .grid-2 { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+    .metric { background:#f9fafb; border-radius:16px; padding:16px; }
+    .metric-label { color:#6b7280; font-size:14px; margin-bottom:8px; }
+    .metric-value { font-size:20px; font-weight:bold; white-space:pre-wrap; }
+    .summary-box { background:#f9fafb; border-radius:16px; padding:14px; line-height:1.6; white-space:pre-wrap; }
+    .summary-box ul { margin:0; padding-left:18px; }
+    .chart-wrap { background:#f9fafb; border-radius:16px; padding:12px; margin-top:12px; }
+    .empty { color:#9ca3af; padding:14px 0; }
+    .row { display:flex; gap:10px; flex-wrap:wrap; align-items:center; }
+    button { border:none; border-radius:12px; padding:12px 14px; font-weight:bold; cursor:pointer; }
+    .primary { background:#4f46e5; color:#fff; }
+    .secondary { background:#e5e7eb; color:#111827; }
+    .status-good { color:#166534; }
+    .status-bad { color:#b91c1c; }
+    @media (max-width:640px) { .grid-2 { grid-template-columns:1fr; } }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="card">
+      <h1>AI สุขภาพ Pro</h1>
+      <div class="muted" id="updatedAt">กำลังโหลด...</div>
+      <div class="chips">
+        <div class="chip" id="chipName">ชื่อ: -</div>
+        <div class="chip" id="chipHN">HN: -</div>
+        <div class="chip" id="chipUserId">userId: -</div>
+      </div>
+    </div>
 
-  function getUserIdSmart() {
-    const params = new URLSearchParams(window.location.search);
+    <div class="card">
+      <h2>สถานะระบบ</h2>
+      <div class="summary-box" id="systemStatus">กำลังตรวจสอบ...</div>
+    </div>
 
-    const fromUserId = (params.get("userId") || "").trim();
-    const fromUid = (params.get("uid") || "").trim();
-    const fromStorage = (localStorage.getItem("lineUserId") || "").trim();
+    <div class="card">
+      <h2>สุขภาพล่าสุด</h2>
+      <div class="grid-2">
+        <div class="metric"><div class="metric-label">น้ำหนัก</div><div class="metric-value" id="weightValue">-</div></div>
+        <div class="metric"><div class="metric-label">BMI</div><div class="metric-value" id="bmiValue">-</div></div>
+        <div class="metric"><div class="metric-label">ความดัน</div><div class="metric-value" id="bpValue">-</div></div>
+        <div class="metric"><div class="metric-label">Migraine</div><div class="metric-value" id="migraineValue">-</div></div>
+      </div>
+    </div>
 
-    const finalUserId = fromUserId || fromUid || fromStorage || "";
+    <div class="card">
+      <h2>อาการล่าสุด</h2>
+      <div class="summary-box" id="symptomsBox">-</div>
+    </div>
 
-    if (finalUserId) {
-      localStorage.setItem("lineUserId", finalUserId);
+    <div class="card">
+      <h2>ผลเลือดล่าสุด</h2>
+      <div class="grid-2">
+        <div class="metric"><div class="metric-label">FBS</div><div class="metric-value" id="fbsValue">-</div></div>
+        <div class="metric"><div class="metric-label">HbA1c</div><div class="metric-value" id="hba1cValue">-</div></div>
+        <div class="metric"><div class="metric-label">BUN</div><div class="metric-value" id="bunValue">-</div></div>
+        <div class="metric"><div class="metric-label">Creatinine</div><div class="metric-value" id="creatinineValue">-</div></div>
+        <div class="metric"><div class="metric-label">Uric</div><div class="metric-value" id="uricValue">-</div></div>
+        <div class="metric"><div class="metric-label">LDL</div><div class="metric-value" id="ldlValue">-</div></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>กราฟแนวโน้มสุขภาพ</h2>
+      <div class="chart-wrap"><h3>ความดันย้อนหลัง</h3><canvas id="bpChart"></canvas><div class="empty" id="bpChartEmpty" style="display:none;">ยังไม่มีข้อมูลย้อนหลังพอสำหรับกราฟนี้</div></div>
+      <div class="chart-wrap"><h3>น้ำหนักย้อนหลัง</h3><canvas id="weightChart"></canvas><div class="empty" id="weightChartEmpty" style="display:none;">ยังไม่มีข้อมูลย้อนหลังพอสำหรับกราฟนี้</div></div>
+      <div class="chart-wrap"><h3>BMI ย้อนหลัง</h3><canvas id="bmiChart"></canvas><div class="empty" id="bmiChartEmpty" style="display:none;">ยังไม่มีข้อมูลย้อนหลังพอสำหรับกราฟนี้</div></div>
+      <div class="chart-wrap"><h3>น้ำตาลย้อนหลัง</h3><canvas id="sugarChart"></canvas><div class="empty" id="sugarChartEmpty" style="display:none;">ยังไม่มีข้อมูลย้อนหลังพอสำหรับกราฟนี้</div></div>
+      <div class="chart-wrap"><h3>ค่าไตย้อนหลัง</h3><canvas id="kidneyChart"></canvas><div class="empty" id="kidneyChartEmpty" style="display:none;">ยังไม่มีข้อมูลย้อนหลังพอสำหรับกราฟนี้</div></div>
+    </div>
+
+    <div class="card">
+      <div class="row">
+        <h2 style="margin:0;">สรุปสุขภาพ</h2>
+        <button class="secondary" id="ruleSummaryBtn">สรุปจากระบบ</button>
+        <button class="primary" id="aiSummaryBtn">สรุปด้วย AI</button>
+      </div>
+      <div class="summary-box" id="summaryBox" style="margin-top:12px;">ยังไม่มีข้อมูลพอสำหรับสรุป</div>
+    </div>
+
+    <div class="card">
+      <h2>นัดครั้งถัดไป</h2>
+      <div class="summary-box" id="appointmentBox">-</div>
+    </div>
+  </div>
+
+  <script>
+    let dashboardData = null;
+    let configData = null;
+    let bpChartObj = null;
+    let weightChartObj = null;
+    let bmiChartObj = null;
+    let sugarChartObj = null;
+    let kidneyChartObj = null;
+
+    function setText(id, value) {
+      const el = document.getElementById(id);
+      if (el) el.textContent = value ?? '-';
     }
 
-    return finalUserId;
-  }
-
-  function formatDateThai(dateStr) {
-    if (!dateStr) return "-";
-    const d = new Date(dateStr);
-    if (isNaN(d)) return dateStr;
-    const dd = String(d.getDate()).padStart(2, "0");
-    const mm = String(d.getMonth() + 1).padStart(2, "0");
-    const yyyy = d.getFullYear();
-    return `${dd}/${mm}/${yyyy}`;
-  }
-
-  function formatTsShort(ts) {
-    if (!ts) return "";
-    const d = new Date(ts);
-    if (isNaN(d)) return ts;
-    const dd = String(d.getDate()).padStart(2, "0");
-    const mm = String(d.getMonth() + 1).padStart(2, "0");
-    return `${dd}/${mm}`;
-  }
-
-  function migraineText(v) {
-    if (v === 1) return "ระดับ 1 (เล็กน้อย)";
-    if (v === 2) return "ระดับ 2 (ปานกลาง)";
-    if (v === 3) return "ระดับ 3 (มาก)";
-    if (v === null || v === undefined || v === "") return "-";
-    return `ระดับ ${v}`;
-  }
-
-  function setText(id, value) {
-    document.getElementById(id).textContent = value ?? "-";
-  }
-
-  function destroyIfExists(chartObj) {
-    if (chartObj && typeof chartObj.destroy === "function") {
-      chartObj.destroy();
-    }
-  }
-
-  let bpChartObj = null;
-  let weightChartObj = null;
-  let bmiChartObj = null;
-  let sugarChartObj = null;
-  let kidneyChartObj = null;
-
-  function buildLineChart(canvasId, emptyId, labels, datasets) {
-    const canvas = document.getElementById(canvasId);
-    const empty = document.getElementById(emptyId);
-
-    const hasData = datasets.some(ds => Array.isArray(ds.data) && ds.data.some(v => v !== null && v !== undefined));
-    if (!hasData || labels.length === 0) {
-      canvas.style.display = "none";
-      empty.style.display = "block";
-      return null;
+    function showSystemStatus(text, isError = false) {
+      const el = document.getElementById('systemStatus');
+      if (!el) return;
+      el.textContent = text;
+      el.className = 'summary-box ' + (isError ? 'status-bad' : 'status-good');
     }
 
-    canvas.style.display = "block";
-    empty.style.display = "none";
+    function getUserIdFromQuery() {
+      const params = new URLSearchParams(window.location.search);
+      return params.get('userId') || '';
+    }
 
-    return new Chart(canvas, {
-      type: "line",
-      data: {
-        labels,
-        datasets
-      },
-      options: {
-        responsive: true,
-        maintainAspectRatio: true,
-        interaction: {
-          mode: "index",
-          intersect: false
-        },
-        scales: {
-          y: {
-            beginAtZero: false
-          }
+    async function loadConfig() {
+      const res = await fetch('/api/config');
+      const data = await res.json();
+      configData = data;
+      return data;
+    }
+
+    async function getUserIdSafe() {
+      const queryUserId = getUserIdFromQuery();
+      if (queryUserId) return queryUserId;
+
+      const config = configData || await loadConfig();
+      if (!config.liffId) return '';
+
+      try {
+        await liff.init({ liffId: config.liffId });
+        if (!liff.isLoggedIn()) {
+          liff.login();
+          return '';
         }
+        const profile = await liff.getProfile();
+        return profile.userId || '';
+      } catch (err) {
+        console.error(err);
+        showSystemStatus('LIFF error: ' + (err.message || String(err)), true);
+        return '';
       }
+    }
+
+    function migraineText(v) {
+      if (v === 1) return 'ระดับ 1 (เล็กน้อย)';
+      if (v === 2) return 'ระดับ 2 (ปานกลาง)';
+      if (v === 3) return 'ระดับ 3 (มาก)';
+      if (v === null || v === undefined || v === '') return '-';
+      return 'ระดับ ' + v;
+    }
+
+    function formatTsShort(ts) {
+      if (!ts) return '';
+      const d = new Date(ts);
+      if (isNaN(d)) return ts;
+      const dd = String(d.getDate()).padStart(2, '0');
+      const mm = String(d.getMonth() + 1).padStart(2, '0');
+      return `${dd}/${mm}`;
+    }
+
+    function destroyIfExists(chartObj) {
+      if (chartObj && typeof chartObj.destroy === 'function') chartObj.destroy();
+    }
+
+    function normalizeTrendLabels(arr) {
+      return (arr || []).map(x => formatTsShort(x.timestamp));
+    }
+
+    function normalizeTrendValues(arr) {
+      return (arr || []).map(x => x.value ?? null);
+    }
+
+    function buildLineChart(canvasId, emptyId, labels, datasets) {
+      const canvas = document.getElementById(canvasId);
+      const empty = document.getElementById(emptyId);
+      const hasData = datasets.some(ds => Array.isArray(ds.data) && ds.data.some(v => v !== null && v !== undefined));
+      if (!hasData || labels.length === 0) {
+        canvas.style.display = 'none';
+        empty.style.display = 'block';
+        return null;
+      }
+      canvas.style.display = 'block';
+      empty.style.display = 'none';
+      return new Chart(canvas, {
+        type: 'line',
+        data: { labels, datasets },
+        options: { responsive: true, maintainAspectRatio: true, interaction: { mode: 'index', intersect: false }, scales: { y: { beginAtZero: false } } }
+      });
+    }
+
+    function renderSummary(summary) {
+      const box = document.getElementById('summaryBox');
+      if (!Array.isArray(summary) || summary.length === 0) {
+        box.textContent = 'ยังไม่มีข้อมูลพอสำหรับสรุป';
+        return;
+      }
+      box.innerHTML = '<ul>' + summary.map(x => `<li>${x}</li>`).join('') + '</ul>';
+    }
+
+    function renderAppointment(appointment) {
+      const box = document.getElementById('appointmentBox');
+      if (!appointment || !appointment.date) {
+        box.textContent = 'ยังไม่มีนัดครั้งถัดไปในระบบ';
+        return;
+      }
+      let text = `วันที่ ${appointment.date}`;
+      if (appointment.time) text += ` เวลา ${appointment.time} น.`;
+      if (appointment.note) text += `\nหมายเหตุ: ${appointment.note}`;
+      if (appointment.reminderStatus) text += `\nสถานะเตือนนัด: ${appointment.reminderStatus}`;
+      box.textContent = text;
+    }
+
+    async function loadDashboard() {
+      try {
+        setText('updatedAt', 'กำลังโหลด...');
+        const health = await fetch('/api/health').then(r => r.json());
+        showSystemStatus(`Apps Script: ${health.appsScriptConfigured ? 'พร้อม' : 'ยังไม่ตั้ง'} | LIFF: ${health.liffConfigured ? 'พร้อม' : 'ยังไม่ตั้ง'} | OpenAI: ${health.openaiConfigured ? 'พร้อม' : 'ยังไม่ตั้ง'} | Model: ${health.model}`, false);
+
+        await loadConfig();
+        const userId = await getUserIdSafe();
+        setText('chipUserId', `userId: ${userId || '-'}`);
+
+        if (!userId) {
+          setText('updatedAt', 'ไม่พบ userId');
+          return;
+        }
+
+        const res = await fetch(`/api/dashboard?userId=${encodeURIComponent(userId)}`);
+        const data = await res.json();
+        dashboardData = data;
+
+        if (!data.ok || !data.found) {
+          setText('updatedAt', data.error || 'ไม่พบข้อมูลผู้ป่วย');
+          return;
+        }
+
+        const profile = data.profile || {};
+        const latest = data.latest || {};
+        const labs = data.labs || {};
+        const appointment = data.appointment || {};
+        const trends = data.trends || {};
+        const summary = data.aiSummaryDraft || [];
+
+        setText('updatedAt', `อัปเดตล่าสุด: ${data.updatedAt || '-'}`);
+        setText('chipName', `ชื่อ: ${profile.fullName || profile.lineDisplayName || '-'}`);
+        setText('chipHN', `HN: ${profile.hn || '-'}`);
+        setText('weightValue', latest.weight != null ? `${latest.weight} kg` : '-');
+        setText('bmiValue', latest.bmi != null ? latest.bmi : '-');
+        setText('bpValue', latest.systolic != null && latest.diastolic != null ? `${latest.systolic}/${latest.diastolic} mmHg` : '-');
+        setText('migraineValue', migraineText(latest.migrainePain));
+        setText('symptomsBox', latest.symptoms || 'ไม่มีข้อมูล');
+        setText('fbsValue', labs.fbs ?? '-');
+        setText('hba1cValue', labs.hba1c ?? '-');
+        setText('bunValue', labs.bun ?? '-');
+        setText('creatinineValue', labs.creatinine ?? '-');
+        setText('uricValue', labs.uric ?? '-');
+        setText('ldlValue', labs.ldl ?? '-');
+        renderSummary(summary);
+        renderAppointment(appointment);
+
+        destroyIfExists(bpChartObj); destroyIfExists(weightChartObj); destroyIfExists(bmiChartObj); destroyIfExists(sugarChartObj); destroyIfExists(kidneyChartObj);
+        bpChartObj = buildLineChart('bpChart', 'bpChartEmpty', normalizeTrendLabels(trends.systolic || []), [
+          { label: 'Systolic', data: normalizeTrendValues(trends.systolic || []), tension: 0.3 },
+          { label: 'Diastolic', data: normalizeTrendValues(trends.diastolic || []), tension: 0.3 }
+        ]);
+        weightChartObj = buildLineChart('weightChart', 'weightChartEmpty', normalizeTrendLabels(trends.weight || []), [
+          { label: 'Weight', data: normalizeTrendValues(trends.weight || []), tension: 0.3 }
+        ]);
+        bmiChartObj = buildLineChart('bmiChart', 'bmiChartEmpty', normalizeTrendLabels(trends.bmi || []), [
+          { label: 'BMI', data: normalizeTrendValues(trends.bmi || []), tension: 0.3 }
+        ]);
+        const sugarBase = (trends.fbs || []).length ? (trends.fbs || []) : (trends.hba1c || []);
+        sugarChartObj = buildLineChart('sugarChart', 'sugarChartEmpty', normalizeTrendLabels(sugarBase), [
+          { label: 'FBS', data: normalizeTrendValues(trends.fbs || []), tension: 0.3 },
+          { label: 'HbA1c', data: normalizeTrendValues(trends.hba1c || []), tension: 0.3 }
+        ]);
+        const kidneyBase = (trends.creatinine || []).length ? (trends.creatinine || []) : ((trends.bun || []).length ? (trends.bun || []) : (trends.uric || []));
+        kidneyChartObj = buildLineChart('kidneyChart', 'kidneyChartEmpty', normalizeTrendLabels(kidneyBase), [
+          { label: 'Creatinine', data: normalizeTrendValues(trends.creatinine || []), tension: 0.3 },
+          { label: 'BUN', data: normalizeTrendValues(trends.bun || []), tension: 0.3 },
+          { label: 'Uric', data: normalizeTrendValues(trends.uric || []), tension: 0.3 }
+        ]);
+      } catch (err) {
+        console.error(err);
+        setText('updatedAt', 'โหลดข้อมูลไม่สำเร็จ: ' + (err.message || String(err)));
+      }
+    }
+
+    async function runAISummary() {
+      if (!dashboardData) {
+        renderSummary([]);
+        setText('summaryBox', 'ยังไม่มี dashboard data สำหรับส่งเข้า AI');
+        return;
+      }
+      const box = document.getElementById('summaryBox');
+      box.textContent = 'กำลังให้ AI สรุป...';
+      try {
+        const res = await fetch('/api/ai-summary', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(dashboardData)
+        });
+        const data = await res.json();
+        if (!data.ok) {
+          box.textContent = 'AI error: ' + (data.error || 'unknown error');
+          return;
+        }
+        box.textContent = data.text || 'ยังไม่ได้ข้อความจาก AI';
+      } catch (err) {
+        box.textContent = 'AI error: ' + (err.message || String(err));
+      }
+    }
+
+    document.getElementById('ruleSummaryBtn').addEventListener('click', () => {
+      renderSummary(dashboardData?.aiSummaryDraft || []);
     });
-  }
-
-  function normalizeTrendLabels(arr) {
-    return (arr || []).map(x => formatTsShort(x.timestamp));
-  }
-
-  function normalizeTrendValues(arr) {
-    return (arr || []).map(x => x.value ?? null);
-  }
-
-  function renderSummary(summary) {
-    const box = document.getElementById("summaryBox");
-    if (!Array.isArray(summary) || summary.length === 0) {
-      box.innerHTML = "ยังไม่มีข้อมูลพอสำหรับสรุป";
-      return;
-    }
-
-    box.innerHTML = `<ul>${summary.map(x => `<li>${x}</li>`).join("")}</ul>`;
-  }
-
-  function renderAppointment(appointment) {
-    if (!appointment || !appointment.date) {
-      document.getElementById("appointmentBox").textContent = "ยังไม่มีนัดครั้งถัดไปในระบบ";
-      return;
-    }
-
-    let text = `วันที่ ${formatDateThai(appointment.date)}`;
-    if (appointment.time) text += ` เวลา ${appointment.time} น.`;
-    if (appointment.note) text += `\nหมายเหตุ: ${appointment.note}`;
-    document.getElementById("appointmentBox").textContent = text;
-  }
-
-  async function loadDashboard() {
-    const userId = getUserIdSmart();
-
-    if (!userId) {
-      document.getElementById("updatedAt").textContent = "ไม่พบ userId ใน URL หรือ localStorage";
-      return;
-    }
-
-    const url = `${APPS_SCRIPT_URL}?mode=dashboard&userId=${encodeURIComponent(userId)}`;
-    const res = await fetch(url);
-    const data = await res.json();
-
-    if (!data.ok || !data.found) {
-      document.getElementById("updatedAt").textContent = "ไม่พบข้อมูลผู้ป่วย";
-      return;
-    }
-
-    const profile = data.profile || {};
-    const latest = data.latest || {};
-    const labs = data.labs || {};
-    const appointment = data.appointment || {};
-    const trends = data.trends || {};
-    const summary = data.aiSummaryDraft || [];
-
-    setText("updatedAt", `อัปเดตล่าสุด: ${data.updatedAt || "-"}`);
-    setText("chipName", `ชื่อ: ${profile.fullName || profile.lineDisplayName || "-"}`);
-    setText("chipHN", `HN: ${profile.hn || "-"}`);
-
-    setText("weightValue", latest.weight != null ? `${latest.weight} kg` : "-");
-    setText("bmiValue", latest.bmi != null ? latest.bmi : "-");
-    setText("bpValue", (latest.systolic != null && latest.diastolic != null) ? `${latest.systolic}/${latest.diastolic} mmHg` : "-");
-    setText("migraineValue", migraineText(latest.migrainePain));
-    setText("symptomsBox", latest.symptoms || "ไม่มีข้อมูล");
-
-    setText("fbsValue", labs.fbs ?? "-");
-    setText("hba1cValue", labs.hba1c ?? "-");
-    setText("bunValue", labs.bun ?? "-");
-    setText("creatinineValue", labs.creatinine ?? "-");
-    setText("uricValue", labs.uric ?? "-");
-    setText("ldlValue", labs.ldl ?? "-");
-
-    renderSummary(summary);
-    renderAppointment(appointment);
-
-    destroyIfExists(bpChartObj);
-    destroyIfExists(weightChartObj);
-    destroyIfExists(bmiChartObj);
-    destroyIfExists(sugarChartObj);
-    destroyIfExists(kidneyChartObj);
-
-    const bpLabels = normalizeTrendLabels(trends.systolic || []);
-    bpChartObj = buildLineChart("bpChart", "bpChartEmpty", bpLabels, [
-      {
-        label: "Systolic",
-        data: normalizeTrendValues(trends.systolic || []),
-        tension: 0.3
-      },
-      {
-        label: "Diastolic",
-        data: normalizeTrendValues(trends.diastolic || []),
-        tension: 0.3
-      }
-    ]);
-
-    const weightLabels = normalizeTrendLabels(trends.weight || []);
-    weightChartObj = buildLineChart("weightChart", "weightChartEmpty", weightLabels, [
-      {
-        label: "Weight",
-        data: normalizeTrendValues(trends.weight || []),
-        tension: 0.3
-      }
-    ]);
-
-    const bmiLabels = normalizeTrendLabels(trends.bmi || []);
-    bmiChartObj = buildLineChart("bmiChart", "bmiChartEmpty", bmiLabels, [
-      {
-        label: "BMI",
-        data: normalizeTrendValues(trends.bmi || []),
-        tension: 0.3
-      }
-    ]);
-
-    const sugarLabels = normalizeTrendLabels((trends.fbs || []).length ? (trends.fbs || []) : (trends.hba1c || []));
-    sugarChartObj = buildLineChart("sugarChart", "sugarChartEmpty", sugarLabels, [
-      {
-        label: "FBS",
-        data: normalizeTrendValues(trends.fbs || []),
-        tension: 0.3
-      },
-      {
-        label: "HbA1c",
-        data: normalizeTrendValues(trends.hba1c || []),
-        tension: 0.3
-      }
-    ]);
-
-    const kidneyLabels = normalizeTrendLabels(
-      (trends.creatinine || []).length
-        ? (trends.creatinine || [])
-        : ((trends.bun || []).length ? (trends.bun || []) : (trends.uric || []))
-    );
-
-    kidneyChartObj = buildLineChart("kidneyChart", "kidneyChartEmpty", kidneyLabels, [
-      {
-        label: "Creatinine",
-        data: normalizeTrendValues(trends.creatinine || []),
-        tension: 0.3
-      },
-      {
-        label: "BUN",
-        data: normalizeTrendValues(trends.bun || []),
-        tension: 0.3
-      },
-      {
-        label: "Uric",
-        data: normalizeTrendValues(trends.uric || []),
-        tension: 0.3
-      }
-    ]);
-  }
-
-  loadDashboard().catch(err => {
-    document.getElementById("updatedAt").textContent = "โหลดข้อมูลไม่สำเร็จ";
-    console.error(err);
-  });
-</script>
+    document.getElementById('aiSummaryBtn').addEventListener('click', runAISummary);
+    window.addEventListener('load', loadDashboard);
+  </script>
+</body>
+</html>
