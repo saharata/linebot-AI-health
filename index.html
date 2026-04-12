@@ -6,136 +6,277 @@
     <title>AI สุขภาพ</title>
     <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
     <style>
+      * {
+        box-sizing: border-box;
+      }
+
       body {
         font-family: Arial, sans-serif;
-        background: #f5f7fb;
+        background: #f3f6fb;
         margin: 0;
         padding: 16px;
         color: #1f2937;
       }
+
+      .container {
+        max-width: 760px;
+        margin: 0 auto;
+      }
+
       .card {
-        background: #fff;
-        border-radius: 14px;
+        background: #ffffff;
+        border-radius: 16px;
         padding: 16px;
         margin-bottom: 14px;
-        box-shadow: 0 2px 10px rgba(0,0,0,0.06);
+        box-shadow: 0 4px 18px rgba(0, 0, 0, 0.06);
       }
-      .muted {
+
+      .title {
+        font-size: 22px;
+        font-weight: 700;
+        margin-bottom: 6px;
+      }
+
+      .subtitle {
         color: #6b7280;
         font-size: 14px;
       }
+
+      .section-title {
+        font-size: 18px;
+        font-weight: 700;
+        margin-bottom: 12px;
+      }
+
+      .grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 10px;
+      }
+
+      .item {
+        background: #f9fafb;
+        border-radius: 12px;
+        padding: 12px;
+      }
+
+      .label {
+        font-size: 13px;
+        color: #6b7280;
+        margin-bottom: 4px;
+      }
+
+      .value {
+        font-size: 18px;
+        font-weight: 700;
+        color: #111827;
+      }
+
+      .text-value {
+        font-size: 15px;
+        font-weight: 500;
+        color: #111827;
+        white-space: pre-wrap;
+        word-break: break-word;
+      }
+
+      .summary-line,
+      .alert-line,
+      .plain-line {
+        margin: 8px 0;
+        line-height: 1.5;
+      }
+
       .error {
-        color: #b91c1c;
+        color: #991b1b;
         background: #fee2e2;
         padding: 12px;
-        border-radius: 10px;
+        border-radius: 12px;
+        line-height: 1.5;
       }
-      .row {
-        margin: 6px 0;
+
+      .success {
+        color: #065f46;
+        background: #d1fae5;
+        padding: 12px;
+        border-radius: 12px;
+        line-height: 1.5;
       }
-      .summary-line {
-        margin: 6px 0;
+
+      .muted-box {
+        color: #374151;
+        background: #f3f4f6;
+        padding: 12px;
+        border-radius: 12px;
+        line-height: 1.5;
+      }
+
+      .chip {
+        display: inline-block;
+        background: #eef2ff;
+        color: #3730a3;
+        border-radius: 999px;
+        padding: 6px 10px;
+        font-size: 12px;
+        font-weight: 700;
+        margin-right: 6px;
+        margin-bottom: 6px;
+      }
+
+      @media (max-width: 640px) {
+        .grid {
+          grid-template-columns: 1fr;
+        }
+
+        .value {
+          font-size: 17px;
+        }
       }
     </style>
   </head>
   <body>
-    <div id="app" class="card">เริ่มต้นโหลด...</div>
+    <div class="container">
+      <div id="app" class="card">เริ่มต้นโหลด...</div>
+    </div>
 
     <script>
-      const LIFF_ID = '2009768848-KhIIGtbn';
-      const DASHBOARD_API_BASE = 'https://script.google.com/macros/s/AKfycbyD57P3ET66K1QiYeAHhL8eLQVwiSIdd1eUe5EdfJ7AsID4_qQAfvB4LUq1eLRF9Fl_/exec';
+      const LIFF_ID = "2009768848-KhIIGtbn";
+      const DASHBOARD_API_BASE =
+        "https://script.google.com/macros/s/AKfycbyD57P3ET66K1QiYeAHhL8eLQVwiSIdd1eUe5EdfJ7AsID4_qQAfvB4LUq1eLRF9Fl_/exec";
 
       function setHtml(html) {
-        document.getElementById('app').innerHTML = html;
+        document.getElementById("app").innerHTML = html;
       }
 
       function setStatus(text) {
         setHtml(`
-          <div><strong>AI สุขภาพ</strong></div>
-          <div class="muted" style="margin-top:8px;">${text}</div>
+          <div class="title">AI สุขภาพ</div>
+          <div class="subtitle">${escapeHtml(text)}</div>
         `);
       }
 
       function setError(text) {
-        setHtml(`<div class="error">${escapeHtml(text)}</div>`);
+        setHtml(`
+          <div class="title">AI สุขภาพ</div>
+          <div class="error" style="margin-top:12px;">${escapeHtml(text)}</div>
+        `);
       }
 
       function escapeHtml(str) {
-        return String(str)
-          .replace(/&/g, '&amp;')
-          .replace(/</g, '&lt;')
-          .replace(/>/g, '&gt;')
-          .replace(/"/g, '&quot;')
-          .replace(/'/g, '&#039;');
+        return String(str ?? "")
+          .replace(/&/g, "&amp;")
+          .replace(/</g, "&lt;")
+          .replace(/>/g, "&gt;")
+          .replace(/"/g, "&quot;")
+          .replace(/'/g, "&#039;");
       }
 
       function loadJsonp(url, timeoutMs = 15000) {
         return new Promise((resolve, reject) => {
-          const callbackName = 'jsonp_cb_' + Date.now() + '_' + Math.floor(Math.random() * 100000);
-          const script = document.createElement('script');
+          const callbackName =
+            "jsonp_cb_" + Date.now() + "_" + Math.floor(Math.random() * 100000);
+
+          const script = document.createElement("script");
+
           const timer = setTimeout(() => {
             cleanup();
-            reject(new Error('โหลดข้อมูลช้าเกินกำหนด'));
+            reject(new Error("โหลดข้อมูลช้าเกินกำหนด"));
           }, timeoutMs);
 
           function cleanup() {
             clearTimeout(timer);
             if (script.parentNode) script.parentNode.removeChild(script);
-            try { delete window[callbackName]; } catch (_) { window[callbackName] = undefined; }
+            try {
+              delete window[callbackName];
+            } catch (_) {
+              window[callbackName] = undefined;
+            }
           }
 
-          window[callbackName] = function(data) {
+          window[callbackName] = function (data) {
             cleanup();
             resolve(data);
           };
 
-          script.onerror = function() {
+          script.onerror = function () {
             cleanup();
-            reject(new Error('เรียก API ไม่สำเร็จ'));
+            reject(new Error("เรียก API ไม่สำเร็จ"));
           };
 
-          script.src = url + (url.includes('?') ? '&' : '?') + 'callback=' + callbackName;
+          script.src =
+            url + (url.includes("?") ? "&" : "?") + "callback=" + callbackName;
           document.body.appendChild(script);
         });
       }
 
+      function formatDateThai(dateStr) {
+        if (!dateStr) return "-";
+
+        const d = new Date(dateStr);
+        if (isNaN(d.getTime())) return escapeHtml(dateStr);
+
+        const day = String(d.getDate()).padStart(2, "0");
+        const month = String(d.getMonth() + 1).padStart(2, "0");
+        const year = d.getFullYear() + 543;
+        return `${day}/${month}/${year}`;
+      }
+
+      function formatUpdatedAt(dateTimeStr) {
+        if (!dateTimeStr) return "-";
+        return escapeHtml(dateTimeStr);
+      }
+
+      function migraineText(level) {
+        if (level == null) return "-";
+        if (Number(level) === 1) return "ระดับ 1 (เล็กน้อย)";
+        if (Number(level) === 2) return "ระดับ 2 (ปานกลาง)";
+        if (Number(level) === 3) return "ระดับ 3 (มาก)";
+        return "ระดับ " + escapeHtml(level);
+      }
+
+      function displayValue(v, suffix = "") {
+        if (v === null || v === undefined || v === "") return "-";
+        return escapeHtml(String(v) + suffix);
+      }
+
       async function main() {
         try {
-          setStatus('1/4 กำลัง init LIFF...');
+          setStatus("1/4 กำลัง init LIFF...");
           await liff.init({ liffId: LIFF_ID });
 
-          setStatus('2/4 กำลังตรวจ login...');
+          setStatus("2/4 กำลังตรวจ login...");
           if (!liff.isLoggedIn()) {
             liff.login();
             return;
           }
 
-          setStatus('3/4 กำลังอ่าน user...');
+          setStatus("3/4 กำลังอ่าน user...");
           const context = liff.getContext();
           const userId = context && context.userId ? context.userId : null;
 
           if (!userId) {
-            setError('ไม่พบ LINE userId');
+            setError("ไม่พบ LINE userId");
             return;
           }
 
-          setStatus('4/4 กำลังดึงข้อมูลสุขภาพ...');
+          setStatus("4/4 กำลังดึงข้อมูลสุขภาพ...");
           const url =
             DASHBOARD_API_BASE +
-            '?mode=dashboard&userId=' +
+            "?mode=dashboard&userId=" +
             encodeURIComponent(userId);
 
           const data = await loadJsonp(url, 15000);
 
           if (!data || data.ok !== true) {
-            setError((data && data.error) || 'ระบบดึงข้อมูลไม่สำเร็จ');
+            setError((data && data.error) || "ระบบดึงข้อมูลไม่สำเร็จ");
             return;
           }
 
           if (!data.found) {
             setHtml(`
-              <div class="card">
-                <div class="error">ยังไม่พบข้อมูลของคุณในระบบ</div>
+              <div class="title">AI สุขภาพ</div>
+              <div class="error" style="margin-top:12px;">
+                ยังไม่พบข้อมูลของคุณในระบบ
               </div>
             `);
             return;
@@ -152,57 +293,133 @@
         const latest = data.latest || {};
         const appt = data.appointment || {};
         const labs = data.labs || {};
+        const alerts = data.alerts || [];
         const summary = data.aiSummaryDraft || [];
 
         const bp =
           latest.systolic != null && latest.diastolic != null
-            ? latest.systolic + '/' + latest.diastolic
-            : '-';
+            ? latest.systolic + "/" + latest.diastolic + " mmHg"
+            : "-";
 
-        const migraineText =
-          latest.migrainePain == null
-            ? '-'
-            : latest.migrainePain === 1
-            ? 'ระดับ 1 (เล็กน้อย)'
-            : latest.migrainePain === 2
-            ? 'ระดับ 2 (ปานกลาง)'
-            : latest.migrainePain === 3
-            ? 'ระดับ 3 (มาก)'
-            : 'ระดับ ' + latest.migrainePain;
+        const symptomText = latest.symptoms ? escapeHtml(latest.symptoms) : "ไม่มีข้อมูล";
+        const bloodTestNoteText = labs.bloodTestNote
+          ? escapeHtml(labs.bloodTestNote)
+          : "ไม่มีหมายเหตุ";
 
         setHtml(`
           <div class="card">
-            <div><strong>AI สุขภาพของฉัน</strong></div>
-            <div class="muted">อัปเดตล่าสุด: ${escapeHtml(data.updatedAt || '-')}</div>
-            <div class="row">ชื่อ: ${escapeHtml(p.fullName || p.lineDisplayName || '-')}</div>
-            <div class="row">น้ำหนัก: ${latest.weight ?? '-'}</div>
-            <div class="row">BMI: ${latest.bmi ?? '-'}</div>
-            <div class="row">ความดัน: ${escapeHtml(bp)}</div>
-            <div class="row">Migraine: ${escapeHtml(migraineText)}</div>
+            <div class="title">AI สุขภาพของฉัน</div>
+            <div class="subtitle">อัปเดตล่าสุด: ${formatUpdatedAt(data.updatedAt)}</div>
+            <div style="margin-top:12px;">
+              <span class="chip">ชื่อ: ${escapeHtml(p.fullName || p.lineDisplayName || "-")}</span>
+              <span class="chip">HN: ${escapeHtml(p.hn || "-")}</span>
+            </div>
           </div>
 
           <div class="card">
-            <div><strong>ผลเลือดล่าสุด</strong></div>
-            <div class="row">FBS: ${labs.fbs ?? '-'}</div>
-            <div class="row">HbA1c: ${labs.hba1c ?? '-'}</div>
-            <div class="row">LDL: ${labs.ldl ?? '-'}</div>
-            <div class="row">Creatinine: ${labs.creatinine ?? '-'}</div>
-            <div class="row">AST: ${labs.ast ?? '-'}</div>
-            <div class="row">ALT: ${labs.alt ?? '-'}</div>
+            <div class="section-title">สุขภาพล่าสุด</div>
+            <div class="grid">
+              <div class="item">
+                <div class="label">น้ำหนัก</div>
+                <div class="value">${displayValue(latest.weight, " kg")}</div>
+              </div>
+              <div class="item">
+                <div class="label">BMI</div>
+                <div class="value">${displayValue(latest.bmi)}</div>
+              </div>
+              <div class="item">
+                <div class="label">ความดัน</div>
+                <div class="value">${escapeHtml(bp)}</div>
+              </div>
+              <div class="item">
+                <div class="label">Migraine</div>
+                <div class="value">${escapeHtml(migraineText(latest.migrainePain))}</div>
+              </div>
+            </div>
           </div>
 
           <div class="card">
-            <div><strong>นัดหมายครั้งถัดไป</strong></div>
-            <div class="row">วันที่: ${escapeHtml(appt.date || '-')}</div>
-            <div class="row">เวลา: ${escapeHtml(appt.time || '-')}</div>
+            <div class="section-title">อาการล่าสุด</div>
+            <div class="muted-box">${symptomText}</div>
           </div>
 
           <div class="card">
-            <div><strong>AI สรุปสุขภาพ</strong></div>
+            <div class="section-title">ผลเลือดล่าสุด</div>
+            <div class="grid">
+              <div class="item">
+                <div class="label">FBS</div>
+                <div class="value">${displayValue(labs.fbs)}</div>
+              </div>
+              <div class="item">
+                <div class="label">HbA1c</div>
+                <div class="value">${displayValue(labs.hba1c)}</div>
+              </div>
+              <div class="item">
+                <div class="label">LDL</div>
+                <div class="value">${displayValue(labs.ldl)}</div>
+              </div>
+              <div class="item">
+                <div class="label">Creatinine</div>
+                <div class="value">${displayValue(labs.creatinine)}</div>
+              </div>
+              <div class="item">
+                <div class="label">Uric</div>
+                <div class="value">${displayValue(labs.uric)}</div>
+              </div>
+              <div class="item">
+                <div class="label">Hb</div>
+                <div class="value">${displayValue(labs.hb)}</div>
+              </div>
+              <div class="item">
+                <div class="label">WBC</div>
+                <div class="value">${displayValue(labs.wbc)}</div>
+              </div>
+              <div class="item">
+                <div class="label">AST / ALT</div>
+                <div class="value">${displayValue(labs.ast)} / ${displayValue(labs.alt)}</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="section-title">หมายเหตุผลเลือด</div>
+            <div class="muted-box">${bloodTestNoteText}</div>
+          </div>
+
+          <div class="card">
+            <div class="section-title">นัดหมายครั้งถัดไป</div>
+            <div class="grid">
+              <div class="item">
+                <div class="label">วันที่</div>
+                <div class="value">${escapeHtml(formatDateThai(appt.date))}</div>
+              </div>
+              <div class="item">
+                <div class="label">เวลา</div>
+                <div class="value">${displayValue(appt.time)}</div>
+              </div>
+            </div>
+            ${
+              appt.note
+                ? `<div style="margin-top:12px;" class="muted-box">${escapeHtml(appt.note)}</div>`
+                : ""
+            }
+          </div>
+
+          <div class="card">
+            <div class="section-title">สิ่งที่ควรติดตาม</div>
+            ${
+              alerts.length
+                ? alerts.map(x => `<div class="alert-line">• ${escapeHtml(x)}</div>`).join("")
+                : '<div class="plain-line">ไม่มีข้อความเตือนเพิ่มเติม</div>'
+            }
+          </div>
+
+          <div class="card">
+            <div class="section-title">AI สรุปสุขภาพ</div>
             ${
               summary.length
-                ? summary.map(x => `<div class="summary-line">• ${escapeHtml(x)}</div>`).join('')
-                : '<div class="row">ยังไม่มีสรุป</div>'
+                ? summary.map(x => `<div class="summary-line">• ${escapeHtml(x)}</div>`).join("")
+                : '<div class="plain-line">ยังไม่มีสรุป</div>'
             }
           </div>
         `);
