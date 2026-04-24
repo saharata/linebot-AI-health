@@ -14,8 +14,8 @@ const PORT = process.env.PORT || 3000;
 // ENV
 // =========================
 const APPS_SCRIPT_URL = process.env.APPS_SCRIPT_URL || "";
-const OPENAI_API_KEY = process.env.OPENAI_API_KEY || "";
-const OPENAI_MODEL = process.env.OPENAI_MODEL || "gpt-5.4";
+const apiKey = process.env.MINIMAX_API_KEY
+const model = process.env.MINIMAX_MODEL
 const LIFF_ID = process.env.LIFF_ID || "";
 
 // =========================
