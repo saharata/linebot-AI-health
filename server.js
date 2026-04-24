@@ -12,20 +12,14 @@ app.use(express.static("public"));
 
 const PORT = process.env.PORT || 3000;
 
-// =========================
-// ENV
-// =========================
 const APPS_SCRIPT_URL = process.env.APPS_SCRIPT_URL || "";
 const LIFF_ID = process.env.LIFF_ID || "";
 
 const MINIMAX_API_KEY = process.env.MINIMAX_API_KEY || "";
-const MINIMAX_MODEL = process.env.MINIMAX_MODEL || "abab6.5s-chat";
+const MINIMAX_MODEL = process.env.MINIMAX_MODEL || "MiniMax-M2.7";
 const MINIMAX_BASE_URL =
-  process.env.MINIMAX_BASE_URL || "https://api.minimax.io/v1/text/chatcompletion_v2";
+  process.env.MINIMAX_BASE_URL || "https://api.minimax.io/v1/chat/completions";
 
-// =========================
-// HEALTH CHECK
-// =========================
 app.get("/api/health", (req, res) => {
   res.json({
     ok: true,
@@ -37,18 +31,12 @@ app.get("/api/health", (req, res) => {
   });
 });
 
-// =========================
-// CONFIG
-// =========================
 app.get("/api/config", (req, res) => {
   res.json({
     liffId: LIFF_ID
   });
 });
 
-// =========================
-// DASHBOARD
-// =========================
 app.get("/api/dashboard", async (req, res) => {
   try {
     const userId = req.query.userId;
@@ -62,7 +50,6 @@ app.get("/api/dashboard", async (req, res) => {
     }
 
     const url = `${APPS_SCRIPT_URL}?mode=dashboard&userId=${encodeURIComponent(userId)}`;
-
     const response = await fetch(url);
     const data = await response.json();
 
@@ -75,9 +62,6 @@ app.get("/api/dashboard", async (req, res) => {
   }
 });
 
-// =========================
-// AI SUMMARY - MINIMAX ONLY
-// =========================
 app.post("/api/ai-summary", async (req, res) => {
   try {
     if (!MINIMAX_API_KEY) {
@@ -95,7 +79,7 @@ app.post("/api/ai-summary", async (req, res) => {
 
 ${JSON.stringify(dashboard, null, 2)}
 
-สรุป:
+ขอรูปแบบ:
 - ภาพรวมสุขภาพ
 - แนวโน้ม
 - สิ่งที่ควรติดตาม
@@ -106,7 +90,7 @@ ${JSON.stringify(dashboard, null, 2)}
     const response = await fetch(MINIMAX_BASE_URL, {
       method: "POST",
       headers: {
-        "Authorization": `Bearer ${MINIMAX_API_KEY}`,
+        Authorization: `Bearer ${MINIMAX_API_KEY}`,
         "Content-Type": "application/json"
       },
       body: JSON.stringify({
@@ -114,7 +98,8 @@ ${JSON.stringify(dashboard, null, 2)}
         messages: [
           {
             role: "system",
-            content: "คุณเป็นผู้ช่วยแพทย์ที่สรุปข้อมูลสุขภาพให้คนทั่วไปเข้าใจง่าย"
+            content:
+              "คุณเป็นผู้ช่วยแพทย์ ช่วยสรุปข้อมูลสุขภาพให้คนทั่วไปเข้าใจง่าย กระชับ และไม่วินิจฉัยเกินข้อมูล"
           },
           {
             role: "user",
@@ -122,31 +107,36 @@ ${JSON.stringify(dashboard, null, 2)}
           }
         ],
         temperature: 0.3,
+        max_tokens: 800,
         stream: false
       })
     });
 
     const json = await response.json();
 
+    console.log("MiniMax status:", response.status);
+    console.log("MiniMax response:", JSON.stringify(json));
+
     if (!response.ok) {
       return res.json({
         ok: false,
         error: "MiniMax API error",
+        status: response.status,
         detail: json
       });
     }
 
     const text =
       json.choices?.[0]?.message?.content ||
-      json.reply ||
+      json.choices?.[0]?.delta?.content ||
       json.output_text ||
+      json.reply ||
       "AI ไม่สามารถสรุปได้";
 
     res.json({
       ok: true,
       text
     });
-
   } catch (err) {
     res.json({
       ok: false,
@@ -155,9 +145,6 @@ ${JSON.stringify(dashboard, null, 2)}
   }
 });
 
-// =========================
-// START SERVER
-// =========================
 app.listen(PORT, () => {
   console.log("Server running on port " + PORT);
 });
