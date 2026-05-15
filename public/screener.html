@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>คลินิก งง-งง เดินเซ ปวดหัว ไมเกรน — แบบประเมิน</title>
+  <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
+  <style>
+    * { box-sizing: border-box; }
+    body { margin:0; font-family: -apple-system, "Sarabun", sans-serif; background:#f8fafc; color:#0f172a; }
+    .container { max-width:680px; margin:0 auto; padding:16px 14px 80px; }
+    .header { text-align:center; padding:20px 0 16px; }
+    .header h1 { margin:0 0 6px; font-size:20px; }
+    .header .sub { color:#64748b; font-size:13px; }
+    .progress { height:6px; background:#e2e8f0; border-radius:3px; overflow:hidden; margin:12px 0 20px; }
+    .progress-bar { height:100%; background:#4f46e5; transition:width .3s; }
+    .card { background:#fff; border-radius:18px; padding:18px; margin-bottom:14px; box-shadow:0 2px 8px rgba(0,0,0,.04); }
+    .question { font-size:16px; font-weight:600; margin-bottom:12px; line-height:1.5; }
+    .hint { color:#64748b; font-size:13px; margin-bottom:10px; }
+    .options { display:flex; flex-direction:column; gap:8px; }
+    .opt { padding:14px; border:2px solid #e2e8f0; border-radius:12px; cursor:pointer; transition:all .15s; font-size:15px; }
+    .opt:hover { border-color:#a5b4fc; }
+    .opt.selected { border-color:#4f46e5; background:#eef2ff; color:#3730a3; font-weight:600; }
+    .scale { display:flex; gap:6px; flex-wrap:wrap; }
+    .scale .opt { flex:1; min-width:44px; text-align:center; padding:12px 8px; }
+    .actions { display:flex; gap:10px; margin-top:20px; }
+    button { flex:1; padding:14px; border:none; border-radius:12px; font-size:16px; font-weight:600; cursor:pointer; }
+    .btn-primary { background:#4f46e5; color:#fff; }
+    .btn-secondary { background:#e2e8f0; color:#334155; }
+    button:disabled { opacity:.5; cursor:not-allowed; }
+    .section-label { display:inline-block; background:#fef3c7; color:#92400e; padding:4px 10px; border-radius:999px; font-size:12px; font-weight:600; margin-bottom:10px; }
+    .result-card { background:#fff; border-radius:18px; padding:24px; box-shadow:0 4px 16px rgba(0,0,0,.06); }
+    .risk-badge { display:inline-block; padding:6px 14px; border-radius:999px; font-weight:700; font-size:13px; margin-bottom:14px; }
+    .risk-HIGH { background:#fee2e2; color:#991b1b; }
+    .risk-MEDIUM { background:#fed7aa; color:#9a3412; }
+    .risk-LOW { background:#dcfce7; color:#166534; }
+    .condition-item { padding:14px; border:1px solid #e2e8f0; border-radius:12px; margin-bottom:8px; }
+    .condition-name { font-weight:600; margin-bottom:4px; }
+    .condition-score { display:inline-block; background:#eef2ff; color:#3730a3; padding:2px 8px; border-radius:6px; font-size:12px; }
+    .patient-msg { background:#f0f9ff; border-left:4px solid #0284c7; padding:14px; border-radius:8px; margin:14px 0; line-height:1.7; }
+    .disclaimer { font-size:12px; color:#64748b; margin-top:20px; padding:12px; background:#f8fafc; border-radius:8px; line-height:1.6; }
+    .loading { text-align:center; padding:40px 20px; }
+    .spinner { width:36px; height:36px; border:3px solid #e2e8f0; border-top-color:#4f46e5; border-radius:50%; animation:spin .8s linear infinite; margin:0 auto 14px; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+  </style>
+</head>
+<body>
+<div class="container">
+  <div class="header">
+    <h1>คลินิก งง-งง เดินเซ ปวดหัว ไมเกรน</h1>
+    <div class="sub">แบบประเมินอาการเบื้องต้น — ใช้เวลาประมาณ 5 นาที</div>
+  </div>
+
+  <div class="progress"><div class="progress-bar" id="progressBar" style="width:0%"></div></div>
+
+  <div id="questionArea"></div>
+
+  <div class="actions" id="actionArea" style="display:none">
+    <button class="btn-secondary" id="backBtn">ย้อนกลับ</button>
+    <button class="btn-primary" id="nextBtn">ถัดไป</button>
+  </div>
+
+  <div id="resultArea" style="display:none"></div>
+
+  <div class="disclaimer">
+    บริการนี้เป็นเครื่องมือช่วยคัดกรองเบื้องต้น <b>ไม่ใช่การวินิจฉัยทางการแพทย์</b>
+    ผลการประเมินไม่ได้ทดแทนการตรวจรักษาโดยแพทย์
+    หากมีอาการรุนแรง โปรดพบแพทย์ทันที
+  </div>
+</div>
+
+<script>
+const QUESTIONS = [
+  { section: "ส่วนที่ 1: ปวดหัว", q: "ใน 1 เดือนที่ผ่านมา คุณปวดหัวกี่วัน", type: "options", opts: ["ไม่มีเลย","1-3 วัน","4-7 วัน","8-14 วัน","15 วันขึ้นไป"] },
+  { section: "ส่วนที่ 1: ปวดหัว", q: "ลักษณะปวด", type: "options", opts: ["ปวดข้างเดียว","ปวดสองข้าง","สลับข้าง","รอบศีรษะ"] },
+  { section: "ส่วนที่ 1: ปวดหัว", q: "ปวดแบบไหน", type: "options", opts: ["ตุ้บๆ เป็นจังหวะ","บีบรัด","แทง/จี๊ด","หนักๆ ทื่อๆ"] },
+  { section: "ส่วนที่ 1: ปวดหัว", q: "ระดับความปวดสูงสุด (1=น้อย 10=ทรมาน)", type: "scale", opts: [1,2,3,4,5,6,7,8,9,10] },
+  { section: "ส่วนที่ 1: ปวดหัว", q: "เวลาปวด มีคลื่นไส้ / อาเจียนไหม", type: "options", opts: ["มี ทุกครั้ง","มี บางครั้ง","ไม่มี"] },
+  { section: "ส่วนที่ 1: ปวดหัว", q: "ตอนปวด รำคาญแสง/เสียงไหม", type: "options", opts: ["มาก","ปานกลาง","น้อย","ไม่"] },
+  { section: "ส่วนที่ 1: ปวดหัว", q: "เห็นแสงแฟลช / เส้นซิกแซก ก่อนปวดไหม (aura)", type: "options", opts: ["มี","ไม่มี","ไม่แน่ใจ"] },
+  { section: "ส่วนที่ 1: ปวดหัว", q: "การปวดทำให้ทำงานไม่ได้ / ต้องนอนพักไหม", type: "options", opts: ["ทุกครั้ง","บางครั้ง","ไม่"] },
+
+  { section: "ส่วนที่ 2: เวียนหัว / เดินเซ", q: "คุณเวียนหัว/รู้สึกไม่มั่นคงนานเกิน 3 เดือนหรือยัง", type: "options", opts: ["มากกว่า 3 เดือน","1-3 เดือน","น้อยกว่า 1 เดือน","ไม่มี"] },
+  { section: "ส่วนที่ 2: เวียนหัว / เดินเซ", q: "ใน 1 เดือน เวียนหัวกี่วัน", type: "options", opts: ["ไม่มี","1-7 วัน","8-14 วัน","15 วันขึ้นไป"] },
+  { section: "ส่วนที่ 2: เวียนหัว / เดินเซ", q: "ลักษณะเวียน", type: "options", opts: ["บ้านหมุน (spinning)","โคลงเรือ (rocking/swaying)","ไม่มั่นคง เหมือนจะล้ม","หัวเบาๆ มึน"] },
+  { section: "ส่วนที่ 2: เวียนหัว / เดินเซ", q: "เวียนหนักขึ้นตอนยืน/เดินไหม", type: "options", opts: ["หนักขึ้น","เท่าเดิม","ดีขึ้น"] },
+  { section: "ส่วนที่ 2: เวียนหัว / เดินเซ", q: "เวียนหนักขึ้นตอนดูจอ/ลายเส้นไหม", type: "options", opts: ["หนักขึ้น","เท่าเดิม","ดีขึ้น","ไม่เคยสังเกต"] },
+  { section: "ส่วนที่ 2: เวียนหัว / เดินเซ", q: "เคยมีเหตุการณ์เริ่มต้นไหม (BPPV, ติดเชื้อหู, panic, อุบัติเหตุ)", type: "options", opts: ["มี","ไม่มี","ไม่แน่ใจ"] },
+  { section: "ส่วนที่ 2: เวียนหัว / เดินเซ", q: "หูอื้อ / สูญเสียการได้ยินร่วมด้วยไหม", type: "options", opts: ["มี","ไม่มี"] },
+
+  { section: "ส่วนที่ 3: อาการอื่นๆ", q: "เคยถูกบอกว่า 'ตรวจไม่เจอ' / 'เครียดเฉยๆ' หรือไม่", type: "options", opts: ["บ่อย","บ้าง","ไม่เคย"] },
+  { section: "ส่วนที่ 3: อาการอื่นๆ", q: "อาการมาๆ หายๆ ไม่คงที่ ใช่ไหม", type: "options", opts: ["ใช่","ไม่ใช่"] },
+  { section: "ส่วนที่ 3: อาการอื่นๆ", q: "มีความเครียด / นอนไม่หลับ / กังวลร่วมด้วยไหม", type: "options", opts: ["มาก","ปานกลาง","น้อย","ไม่"] },
+  { section: "ส่วนที่ 3: อาการอื่นๆ", q: "เคยเป็นโรคซึมเศร้า / panic / PTSD หรือไม่", type: "options", opts: ["เคย","ไม่เคย"] },
+  { section: "ส่วนที่ 3: อาการอื่นๆ", q: "อาการกระทบการใช้ชีวิตประจำวันแค่ไหน", type: "scale", opts: [1,2,3,4,5,6,7,8,9,10] },
+
+  { section: "ส่วนที่ 4: สัญญาณอันตราย", q: "ปวดหัวรุนแรงทันที (วินาที-นาที) เคยเป็นไหม", type: "options", opts: ["เพิ่งเป็น","เคยเป็น","ไม่เคย"] },
+  { section: "ส่วนที่ 4: สัญญาณอันตราย", q: "มีไข้ / คอแข็ง / สับสน ร่วมด้วยไหม", type: "options", opts: ["มี","ไม่มี"] },
+  { section: "ส่วนที่ 4: สัญญาณอันตราย", q: "มีอ่อนแรง / ชา / พูดไม่ชัด ร่วมด้วยไหม", type: "options", opts: ["มี","ไม่มี"] },
+  { section: "ส่วนที่ 4: สัญญาณอันตราย", q: "อายุที่เริ่มมีอาการ", type: "options", opts: ["ก่อน 18","18-50","หลัง 50"] },
+  { section: "ส่วนที่ 4: สัญญาณอันตราย", q: "น้ำหนักลด / ไข้เรื้อรัง / มะเร็งร่วมด้วยไหม", type: "options", opts: ["มี","ไม่มี"] },
+  { section: "ส่วนที่ 4: สัญญาณอันตราย", q: "ปวดเปลี่ยน pattern ใหม่ภายใน 3 เดือนนี้ไหม", type: "options", opts: ["ใช่","ไม่ใช่"] },
+
+  { section: "ข้อมูลทั่วไป", q: "เพศ", type: "options", opts: ["หญิง","ชาย","อื่นๆ"] },
+  { section: "ข้อมูลทั่วไป", q: "ช่วงอายุ", type: "options", opts: ["<20","20-30","31-40","41-50","51-60",">60"] },
+  { section: "ข้อมูลทั่วไป", q: "เคยพบหมอด้านนี้กี่คนแล้ว", type: "options", opts: ["ยังไม่เคย","1-2 คน","3-5 คน","มากกว่า 5"] },
+  { section: "ข้อมูลทั่วไป", q: "ทุกข์มานานแค่ไหน", type: "options", opts: ["<6 เดือน","6 เดือน-1 ปี","1-3 ปี","3-5 ปี",">5 ปี"] }
+];
+
+const answers = new Array(QUESTIONS.length).fill(null);
+let current = 0;
+let userId = null;
+
+const qArea = document.getElementById("questionArea");
+const aArea = document.getElementById("actionArea");
+const rArea = document.getElementById("resultArea");
+const pBar = document.getElementById("progressBar");
+const nextBtn = document.getElementById("nextBtn");
+const backBtn = document.getElementById("backBtn");
+
+function render() {
+  if (current >= QUESTIONS.length) return submit();
+  const q = QUESTIONS[current];
+  const optsHtml = q.type === "scale"
+    ? `<div class="scale">${q.opts.map((o,i)=>`<div class="opt ${answers[current]===i?'selected':''}" data-i="${i}">${o}</div>`).join("")}</div>`
+    : `<div class="options">${q.opts.map((o,i)=>`<div class="opt ${answers[current]===i?'selected':''}" data-i="${i}">${o}</div>`).join("")}</div>`;
+  qArea.innerHTML = `
+    <div class="card">
+      <div class="section-label">${q.section}</div>
+      <div class="question">${q.q}</div>
+      ${optsHtml}
+    </div>
+  `;
+  aArea.style.display = "flex";
+  backBtn.disabled = current === 0;
+  nextBtn.textContent = current === QUESTIONS.length - 1 ? "ส่งและประเมิน" : "ถัดไป";
+  pBar.style.width = `${((current) / QUESTIONS.length) * 100}%`;
+
+  qArea.querySelectorAll(".opt").forEach(el => {
+    el.addEventListener("click", () => {
+      answers[current] = parseInt(el.dataset.i, 10);
+      qArea.querySelectorAll(".opt").forEach(e => e.classList.remove("selected"));
+      el.classList.add("selected");
+    });
+  });
+}
+
+nextBtn.addEventListener("click", () => {
+  if (answers[current] === null) {
+    alert("กรุณาเลือกคำตอบ");
+    return;
+  }
+  current++;
+  render();
+});
+
+backBtn.addEventListener("click", () => {
+  if (current > 0) { current--; render(); }
+});
+
+async function submit() {
+  qArea.innerHTML = "";
+  aArea.style.display = "none";
+  pBar.style.width = "100%";
+  rArea.style.display = "block";
+  rArea.innerHTML = `<div class="result-card loading"><div class="spinner"></div><div>กำลังประเมินคำตอบของคุณ...</div></div>`;
+
+  const labeledAnswers = QUESTIONS.map((q, i) => ({
+    section: q.section,
+    question: q.q,
+    answer: q.opts[answers[i]]
+  }));
+
+  try {
+    const resp = await fetch("/api/symptom-check", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ answers: labeledAnswers, userId })
+    });
+    const data = await resp.json();
+    if (!data.ok) {
+      rArea.innerHTML = `<div class="result-card"><b>ขออภัย ระบบประเมินขัดข้อง</b><br>${data.error || ""}</div>`;
+      return;
+    }
+    showResult(data);
+  } catch (err) {
+    rArea.innerHTML = `<div class="result-card"><b>เกิดข้อผิดพลาด</b><br>${err.message}</div>`;
+  }
+}
+
+function showResult(data) {
+  const a = data.analysis || {};
+  const risk = a.riskLevel || "MEDIUM";
+  const riskLabel = { HIGH: "ควรพบแพทย์ทันที", MEDIUM: "ควรพบแพทย์เพื่อประเมินเพิ่ม", LOW: "อาการไม่เร่งด่วน" }[risk];
+
+  const conditionsHtml = (a.possibleConditions || []).map(c => `
+    <div class="condition-item">
+      <div class="condition-name">${c.thaiName || c.condition} <span class="condition-score">${c.matchScore || 0}%</span></div>
+      <div style="font-size:14px;color:#64748b">${c.rationale || ""}</div>
+    </div>
+  `).join("");
+
+  const redFlagsHtml = (a.redFlags || []).length
+    ? `<div class="patient-msg" style="background:#fef2f2;border-left-color:#dc2626"><b>⚠️ สัญญาณที่ควรประเมินด่วน</b><ul style="margin:8px 0 0 18px">${a.redFlags.map(f=>`<li>${f}</li>`).join("")}</ul></div>`
+    : "";
+
+  const ctaText = a.recommendation === "ER_NOW" ? "หาห้องฉุกเฉินใกล้บ้าน" : "จอง slot 5 นาที กับคุณหมอ ฿499";
+  const ctaUrl = a.recommendation === "ER_NOW" ? "tel:1669" : `/booking.html?report=${encodeURIComponent(data.reportId || "")}`;
+
+  rArea.innerHTML = `
+    <div class="result-card">
+      <div class="risk-badge risk-${risk}">${riskLabel}</div>
+      ${redFlagsHtml}
+      <div class="patient-msg">${a.patientMessage || ""}</div>
+      ${conditionsHtml ? `<h3 style="margin-top:18px">อาการที่ควรประเมินเพิ่ม</h3>${conditionsHtml}` : ""}
+      <a href="${ctaUrl}" style="display:block;text-align:center;background:#4f46e5;color:#fff;padding:16px;border-radius:12px;text-decoration:none;font-weight:600;margin-top:20px">${ctaText}</a>
+    </div>
+  `;
+}
+
+(async () => {
+  try {
+    const cfg = await fetch("/api/config").then(r => r.json());
+    if (cfg.liffId && window.liff) {
+      await liff.init({ liffId: cfg.liffId });
+      if (liff.isLoggedIn()) {
+        const profile = await liff.getProfile();
+        userId = profile.userId;
+      }
+    }
+  } catch (e) { console.warn("LIFF init failed", e); }
+  render();
+})();
+</script>
+</body>
+</html>

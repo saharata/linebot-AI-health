@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>จอง slot 5 นาที — คลินิก งง-งง เดินเซ ปวดหัว ไมเกรน</title>
+  <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
+  <style>
+    * { box-sizing: border-box; }
+    body { margin:0; font-family: -apple-system, "Sarabun", sans-serif; background:#f8fafc; color:#0f172a; }
+    .container { max-width:680px; margin:0 auto; padding:16px 14px 80px; }
+    .header { text-align:center; padding:20px 0 16px; }
+    .header h1 { margin:0 0 6px; font-size:20px; }
+    .header .sub { color:#64748b; font-size:13px; }
+    .card { background:#fff; border-radius:18px; padding:18px; margin-bottom:14px; box-shadow:0 2px 8px rgba(0,0,0,.04); }
+    h2 { margin:0 0 12px; font-size:17px; }
+    .day-tabs { display:flex; gap:8px; overflow-x:auto; padding:4px 0 12px; }
+    .day-tab { padding:10px 14px; border:2px solid #e2e8f0; border-radius:12px; cursor:pointer; white-space:nowrap; font-size:14px; min-width:74px; text-align:center; }
+    .day-tab.active { border-color:#4f46e5; background:#eef2ff; color:#3730a3; font-weight:600; }
+    .day-tab .dow { font-size:12px; color:#64748b; }
+    .day-tab.active .dow { color:#4f46e5; }
+    .slots { display:grid; grid-template-columns:repeat(auto-fill,minmax(90px,1fr)); gap:8px; }
+    .slot { padding:10px; border:1px solid #e2e8f0; border-radius:10px; text-align:center; cursor:pointer; font-size:14px; transition:all .15s; }
+    .slot:hover { border-color:#a5b4fc; }
+    .slot.selected { border-color:#4f46e5; background:#4f46e5; color:#fff; font-weight:600; }
+    .form-row { margin-bottom:12px; }
+    .form-row label { display:block; font-size:13px; color:#475569; margin-bottom:6px; }
+    .form-row input { width:100%; padding:12px; border:1px solid #cbd5e1; border-radius:10px; font-size:15px; }
+    .btn-primary { width:100%; padding:16px; background:#4f46e5; color:#fff; border:none; border-radius:12px; font-size:16px; font-weight:600; cursor:pointer; }
+    .btn-primary:disabled { opacity:.5; cursor:not-allowed; }
+    .price-box { display:flex; justify-content:space-between; padding:14px; background:#eef2ff; border-radius:12px; margin-bottom:14px; }
+    .price-box .label { color:#3730a3; }
+    .price-box .amount { font-weight:700; color:#3730a3; font-size:18px; }
+    .empty { color:#94a3b8; text-align:center; padding:20px; }
+    .loading { text-align:center; padding:30px; color:#64748b; }
+  </style>
+</head>
+<body>
+<div class="container">
+  <div class="header">
+    <h1>จอง 5 นาที กับคุณหมอ</h1>
+    <div class="sub">ปรึกษาออนไลน์ผ่าน video call — เลือกเวลาที่สะดวก</div>
+  </div>
+
+  <div class="card">
+    <div class="price-box">
+      <div class="label">ค่า screening 5 นาที</div>
+      <div class="amount">฿499</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>1. เลือกวัน</h2>
+    <div class="day-tabs" id="dayTabs"></div>
+    <h2 style="margin-top:14px">2. เลือกเวลา</h2>
+    <div id="slotsArea" class="loading">กำลังโหลดเวลาว่าง...</div>
+  </div>
+
+  <div class="card">
+    <h2>3. ข้อมูลของคุณ</h2>
+    <div class="form-row">
+      <label>ชื่อ-นามสกุล</label>
+      <input id="name" placeholder="ชื่อจริง">
+    </div>
+    <div class="form-row">
+      <label>เบอร์โทรหรือ LINE ID</label>
+      <input id="contact" placeholder="0xx-xxx-xxxx">
+    </div>
+  </div>
+
+  <button class="btn-primary" id="payBtn" disabled>ไปหน้าจ่ายเงิน LINE Pay</button>
+</div>
+
+<script>
+const slotsArea = document.getElementById("slotsArea");
+const dayTabs = document.getElementById("dayTabs");
+const payBtn = document.getElementById("payBtn");
+let allSlots = [];
+let selectedSlot = null;
+let userId = null;
+const reportId = new URLSearchParams(location.search).get("report") || "";
+
+function dayKey(iso) {
+  const d = new Date(iso);
+  return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`;
+}
+function fmtDay(iso) {
+  const d = new Date(iso);
+  return d.toLocaleDateString("th-TH", { day:"numeric", month:"short" });
+}
+function fmtDow(iso) {
+  const d = new Date(iso);
+  return ["อา","จ","อ","พ","พฤ","ศ","ส"][d.getDay()];
+}
+function fmtTime(iso) {
+  const d = new Date(iso);
+  return `${String(d.getHours()).padStart(2,"0")}:${String(d.getMinutes()).padStart(2,"0")}`;
+}
+
+function groupByDay() {
+  const map = {};
+  allSlots.forEach(s => {
+    const k = dayKey(s.start);
+    if (!map[k]) map[k] = [];
+    map[k].push(s);
+  });
+  return map;
+}
+
+function renderDays() {
+  const map = groupByDay();
+  const keys = Object.keys(map).sort();
+  dayTabs.innerHTML = keys.map((k, idx) => {
+    const first = map[k][0].start;
+    return `<div class="day-tab ${idx===0?'active':''}" data-day="${k}">
+      <div class="dow">${fmtDow(first)}</div>
+      <div>${fmtDay(first)}</div>
+    </div>`;
+  }).join("");
+  dayTabs.querySelectorAll(".day-tab").forEach(el => {
+    el.addEventListener("click", () => {
+      dayTabs.querySelectorAll(".day-tab").forEach(e => e.classList.remove("active"));
+      el.classList.add("active");
+      renderSlots(el.dataset.day);
+    });
+  });
+  if (keys[0]) renderSlots(keys[0]);
+}
+
+function renderSlots(day) {
+  const slots = groupByDay()[day] || [];
+  if (!slots.length) {
+    slotsArea.innerHTML = `<div class="empty">ไม่มี slot ว่างในวันนี้</div>`;
+    return;
+  }
+  slotsArea.innerHTML = `<div class="slots">${slots.map(s => `
+    <div class="slot" data-start="${s.start}" data-end="${s.end}">${fmtTime(s.start)}</div>
+  `).join("")}</div>`;
+  slotsArea.querySelectorAll(".slot").forEach(el => {
+    el.addEventListener("click", () => {
+      slotsArea.querySelectorAll(".slot").forEach(e => e.classList.remove("selected"));
+      el.classList.add("selected");
+      selectedSlot = { start: el.dataset.start, end: el.dataset.end };
+      payBtn.disabled = false;
+    });
+  });
+}
+
+async function loadSlots() {
+  try {
+    const resp = await fetch("/api/booking/slots?days=14");
+    const data = await resp.json();
+    if (!data.ok) {
+      slotsArea.innerHTML = `<div class="empty">โหลดเวลาไม่สำเร็จ: ${data.error}</div>`;
+      return;
+    }
+    allSlots = data.slots || [];
+    if (!allSlots.length) {
+      slotsArea.innerHTML = `<div class="empty">ไม่มี slot ว่างใน 14 วันข้างหน้า</div>`;
+      return;
+    }
+    renderDays();
+  } catch (e) {
+    slotsArea.innerHTML = `<div class="empty">${e.message}</div>`;
+  }
+}
+
+payBtn.addEventListener("click", async () => {
+  if (!selectedSlot) return;
+  const name = document.getElementById("name").value.trim();
+  const contact = document.getElementById("contact").value.trim();
+  if (!name || !contact) { alert("กรุณากรอกชื่อและการติดต่อ"); return; }
+
+  payBtn.disabled = true;
+  payBtn.textContent = "กำลังสร้างคำสั่งจ่ายเงิน...";
+  try {
+    const bookResp = await fetch("/api/booking/create", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        start: selectedSlot.start, end: selectedSlot.end,
+        patientName: name, patientLineId: userId, contact, reportId
+      })
+    });
+    const book = await bookResp.json();
+    if (!book.ok) { alert("จองไม่สำเร็จ: " + book.error); payBtn.disabled = false; payBtn.textContent = "ไปหน้าจ่ายเงิน LINE Pay"; return; }
+
+    const payResp = await fetch("/api/payment/create", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ amount: 499, productName: "5-min screening consult" })
+    });
+    const pay = await payResp.json();
+    if (!pay.ok) { alert("สร้างคำสั่งจ่ายเงินไม่สำเร็จ: " + pay.error); payBtn.disabled = false; payBtn.textContent = "ไปหน้าจ่ายเงิน LINE Pay"; return; }
+
+    location.href = pay.paymentUrl;
+  } catch (e) {
+    alert("เกิดข้อผิดพลาด: " + e.message);
+    payBtn.disabled = false;
+    payBtn.textContent = "ไปหน้าจ่ายเงิน LINE Pay";
+  }
+});
+
+(async () => {
+  try {
+    const cfg = await fetch("/api/config").then(r => r.json());
+    if (cfg.liffId && window.liff) {
+      await liff.init({ liffId: cfg.liffId });
+      if (liff.isLoggedIn()) {
+        const p = await liff.getProfile();
+        userId = p.userId;
+        document.getElementById("name").value = p.displayName || "";
+      }
+    }
+  } catch (e) { console.warn("LIFF init failed", e); }
+  loadSlots();
+})();
+</script>
+</body>
+</html>
