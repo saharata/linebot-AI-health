@@ -30,8 +30,8 @@ async function gen(v) {
     headers: { "xi-api-key": API_KEY, "Content-Type": "application/json", Accept: "audio/mpeg" },
     body: JSON.stringify({
       text: v.text,
-      model_id: "eleven_multilingual_v2",
-      voice_settings: { stability: 0.65, similarity_boost: 0.80, style: 0.30, use_speaker_boost: true }
+      model_id: "eleven_v3",
+      voice_settings: { stability: 0.5, similarity_boost: 0.75, style: 0.4, use_speaker_boost: true }
     })
   });
   if (!res.ok) throw new Error(`${res.status} ${await res.text()}`);
