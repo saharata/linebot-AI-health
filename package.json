@@ -5,7 +5,8 @@
   "description": "AI Health Pro dashboard with LIFF + Apps Script + OpenAI",
   "main": "server.js",
   "scripts": {
-    "start": "node server.js"
+    "start": "node server.js",
+    "voiceover": "node scripts/generate-voiceover.js"
   },
   "dependencies": {
     "cors": "^2.8.5",
