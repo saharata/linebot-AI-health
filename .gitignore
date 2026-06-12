@@ -9,3 +9,4 @@ build/
 .netlify
 voiceover/*.mp3
 voiceover-test/
+assets/cover.png
