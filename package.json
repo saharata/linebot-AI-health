@@ -6,7 +6,9 @@
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
-    "voiceover": "node scripts/generate-voiceover.js"
+    "voiceover": "node scripts/generate-voiceover.js",
+    "audiobook-ep1": "node scripts/generate-audiobook-ep1.js",
+    "images-ep1": "node scripts/generate-images-ep1.js"
   },
   "dependencies": {
     "cors": "^2.8.5",
