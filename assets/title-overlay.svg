@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1024" height="1024" viewBox="0 0 1024 1024">
+  <!-- Transparent background — overlay this on top of the nano-banana cover art -->
+  <g text-anchor="middle" font-family="'Noto Serif Thai','Trirong',serif">
+    <!-- Title line 1 -->
+    <text x="512" y="150" fill="#f2f8ff" font-size="58" font-weight="700" letter-spacing="1"
+          style="paint-order:stroke;stroke:#000;stroke-width:1;stroke-opacity:0.25">แสงที่ความยาวคลื่น</text>
+    <!-- Title line 2 -->
+    <text x="512" y="220" fill="#f2f8ff" font-size="58" font-weight="700" letter-spacing="1"
+          style="paint-order:stroke;stroke:#000;stroke-width:1;stroke-opacity:0.25">สิบสามจุดห้า</text>
+    <!-- Divider -->
+    <line x1="392" y1="252" x2="632" y2="252" stroke="#8fc2ff" stroke-width="1.6" opacity="0.75"/>
+    <!-- Subtitle -->
+    <text x="512" y="296" fill="#a9c8ea" font-family="'Sarabun',sans-serif" font-size="26" letter-spacing="1">สิบห้าปีของวิศวกรหญิงคนหนึ่ง</text>
+    <text x="512" y="332" fill="#a9c8ea" font-family="'Sarabun',sans-serif" font-size="26" letter-spacing="1">ในสงครามที่ทำด้วยแสง</text>
+  </g>
+
+  <!-- Author name bottom -->
+  <text x="512" y="952" text-anchor="middle" fill="#eaf2fc" font-family="'Sarabun',sans-serif"
+        font-size="34" letter-spacing="8">เหวินลี่</text>
+  <!-- English subtitle small -->
+  <text x="512" y="990" text-anchor="middle" fill="#6f8aad" font-family="serif"
+        font-size="18" letter-spacing="5">THE WAVELENGTH OF 13.5</text>
+</svg>
