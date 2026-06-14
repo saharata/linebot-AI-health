@@ -4,18 +4,17 @@
   "series_slug": "wavelength135",
   "language": "th",
   "type": "audiobook_fiction",
-  "playlist_title": "สิบห้าปีของแสง — แสงที่ความยาวคลื่นสิบสามจุดห้า",
-  "playlist_description": "นิยายเสียง 15 ตอน เรื่องของวิศวกรหญิงคนหนึ่ง กับสงครามที่ทำด้วยแสง (เรื่องแต่ง — ชื่อบริษัทสมมุติทั้งหมด)",
+  "playlist_title": "แสงที่ความยาวคลื่นสิบสามจุดห้า — นิยายเสียง ๕ ตอนจบ",
+  "playlist_description": "นิยายเสียง ๕ ตอนจบ. เรื่องของวิศวกรหญิงคนหนึ่งและสงครามที่ทำด้วยแสง (เรื่องแต่ง — ชื่อบริษัทสมมุติทั้งหมด)",
   "playlist_privacy": "public",
   "default_category": "Education",
   "default_privacy": "unlisted",
   "notify_subscribers": false,
-  "total_episodes_planned": 15,
+  "total_episodes_planned": 5,
+  "structure": "5 episodes = 5 acts (chapters 1-3, 4-8, 9-11, 12-14, 15)",
   "episodes": [
     {
-      "ep": 1,
-      "slug": "ep01",
-      "act": 1,
+      "ep": 1, "slug": "ep01", "act": 1,
       "title": "ลุง",
       "full_title": "ลุง — แสงที่ความยาวคลื่นสิบสามจุดห้า | ตอนที่ ๑",
       "chapters": ["ลุง", "สองราคา", "เอวา"],
@@ -25,6 +24,43 @@
       "card": "ep01/cards/card_main.jpg",
       "duration_sec": 628.9,
       "status": "ready_to_upload"
+    },
+    {
+      "ep": 2, "slug": "ep02", "act": 2,
+      "title": "หกเปอร์เซ็นต์",
+      "full_title": "หกเปอร์เซ็นต์ — แสงที่ความยาวคลื่นสิบสามจุดห้า | ตอนที่ ๒",
+      "chapters": ["สิ่งที่อยู่ในกล่อง", "จดหมายที่ไม่ถูกส่ง", "โครงการที่ไม่มีชื่อ", "ดร.หลิน", "หกเปอร์เซ็นต์"],
+      "generator_audio": "scripts/generate-audiobook-ep2.js",
+      "generator_images": "scripts/generate-images-ep2.js",
+      "status": "scripts_ready_pending_gen"
+    },
+    {
+      "ep": 3, "slug": "ep03", "act": 3,
+      "title": "กำแพงที่ทำด้วยแสง",
+      "full_title": "กำแพงที่ทำด้วยแสง — แสงที่ความยาวคลื่นสิบสามจุดห้า | ตอนที่ ๓",
+      "chapters": ["ราคาที่บ้าน", "กำแพงสูงขึ้น", "รอยร้าวที่โซล"],
+      "generator_audio": "scripts/generate-audiobook-ep3.js",
+      "generator_images": "scripts/generate-images-ep3.js",
+      "status": "scripts_ready_pending_gen"
+    },
+    {
+      "ep": 4, "slug": "ep04", "act": 4,
+      "title": "สิ่งที่ส่งต่อ",
+      "full_title": "สิ่งที่ส่งต่อ — แสงที่ความยาวคลื่นสิบสามจุดห้า | ตอนที่ ๔",
+      "chapters": ["รุ่นที่เกิดหลังกำแพง", "การจากไปของหวัง", "ติดไฟ"],
+      "generator_audio": "scripts/generate-audiobook-ep4.js",
+      "generator_images": "scripts/generate-images-ep4.js",
+      "status": "scripts_ready_pending_gen"
+    },
+    {
+      "ep": 5, "slug": "ep05", "act": 5,
+      "title": "อีกฝั่งกำแพง",
+      "full_title": "อีกฝั่งกำแพง — แสงที่ความยาวคลื่นสิบสามจุดห้า | ตอนที่ ๕ (จบ)",
+      "chapters": ["เครื่องแรก และจดหมาย"],
+      "generator_audio": "scripts/generate-audiobook-ep5.js",
+      "generator_images": "scripts/generate-images-ep5.js",
+      "status": "scripts_ready_pending_gen",
+      "is_finale": true
     }
   ]
 }

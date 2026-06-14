@@ -7,10 +7,16 @@
   "scripts": {
     "start": "node server.js",
     "voiceover": "node scripts/generate-voiceover.js",
-    "audiobook-ep2": "node scripts/generate-audiobook-ep2.js",
-    "images-ep2": "node scripts/generate-images-ep2.js",
     "audiobook-ep1": "node scripts/generate-audiobook-ep1.js",
-    "images-ep1": "node scripts/generate-images-ep1.js"
+    "audiobook-ep2": "node scripts/generate-audiobook-ep2.js",
+    "audiobook-ep3": "node scripts/generate-audiobook-ep3.js",
+    "audiobook-ep4": "node scripts/generate-audiobook-ep4.js",
+    "audiobook-ep5": "node scripts/generate-audiobook-ep5.js",
+    "images-ep1": "node scripts/generate-images-ep1.js",
+    "images-ep2": "node scripts/generate-images-ep2.js",
+    "images-ep3": "node scripts/generate-images-ep3.js",
+    "images-ep4": "node scripts/generate-images-ep4.js",
+    "images-ep5": "node scripts/generate-images-ep5.js"
   },
   "dependencies": {
     "cors": "^2.8.5",
