@@ -1,0 +1,30 @@
+{
+  "production": "แสงที่ความยาวคลื่นสิบสามจุดห้า",
+  "series": "สิบห้าปีของแสง",
+  "series_slug": "wavelength135",
+  "language": "th",
+  "type": "audiobook_fiction",
+  "playlist_title": "สิบห้าปีของแสง — แสงที่ความยาวคลื่นสิบสามจุดห้า",
+  "playlist_description": "นิยายเสียง 15 ตอน เรื่องของวิศวกรหญิงคนหนึ่ง กับสงครามที่ทำด้วยแสง (เรื่องแต่ง — ชื่อบริษัทสมมุติทั้งหมด)",
+  "playlist_privacy": "public",
+  "default_category": "Education",
+  "default_privacy": "unlisted",
+  "notify_subscribers": false,
+  "total_episodes_planned": 15,
+  "episodes": [
+    {
+      "ep": 1,
+      "slug": "ep01",
+      "act": 1,
+      "title": "ลุง",
+      "full_title": "ลุง — แสงที่ความยาวคลื่นสิบสามจุดห้า | ตอนที่ ๑",
+      "chapters": ["ลุง", "สองราคา", "เอวา"],
+      "video": "ep01/ep01.mp4",
+      "metadata": "ep01/ep01-metadata.md",
+      "audio": "ep01/audio/ep01_narration.mp3",
+      "card": "ep01/cards/card_main.jpg",
+      "duration_sec": 628.9,
+      "status": "ready_to_upload"
+    }
+  ]
+}
