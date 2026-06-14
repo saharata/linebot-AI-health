@@ -7,6 +7,8 @@
   "scripts": {
     "start": "node server.js",
     "voiceover": "node scripts/generate-voiceover.js",
+    "audiobook-ep2": "node scripts/generate-audiobook-ep2.js",
+    "images-ep2": "node scripts/generate-images-ep2.js",
     "audiobook-ep1": "node scripts/generate-audiobook-ep1.js",
     "images-ep1": "node scripts/generate-images-ep1.js"
   },
