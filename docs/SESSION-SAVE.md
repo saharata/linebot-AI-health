@@ -122,11 +122,30 @@ linebot-AI-health/ (branch: claude/research-solo-company-fxyhr)
 
 ## 🎙️ หมายเหตุ Voice Clone (user กำลังทำ)
 
-- user กำลัง clone เสียงตัวเองใน ElevenLabs Professional Voice Clone
-- Voice name: `saharat_thai`
-- Language: เลือก **English** (ไทยไม่มีในลิสต์ — English ปลอดภัยสุด)
-- หลัง clone เสร็จ → ได้ voice ID → แทน `VOICE_LIAM` ใน scripts → audiobook เป็นเสียง user เอง
-- ใช้ model `eleven_v3` ตามเดิม
+- user gen เสียงตัวเอง `saharat_thai` ผ่าน **Instant Voice Clone** (IVC) สำเร็จแล้ว
+- ทดสอบ TTS ภาษาไทย ใน Eleven v3 model = ใช้งานได้
+- **ขั้นต่อไป**: หา Voice ID → ใส่ใน scripts → regen ทั้งซีรีส์ด้วยเสียงตัวเอง
+
+### วิธีใส่ใน scripts
+
+```bash
+# 1. ใน ElevenLabs → Voices → คลิก ... ข้าง saharat_thai → Copy voice ID
+# 2. ใส่ใน ~/.zshrc
+export SAHARAT_VOICE_ID="<paste_id>"
+
+# 3. แก้ scripts/generate-audiobook-ep[1-5].js เปลี่ยน:
+const VOICE_LIAM = process.env.SAHARAT_VOICE_ID || "TX3LPaxmHKxFdv7VOQHJ";
+
+# 4. รันใหม่
+for EP in 1 2 3 4 5; do npm run audiobook-ep$EP; done
+```
+
+→ Audiobook ทั้งซีรีส์ = **เสียงตัวเอง** ระดับ premium personal
+
+### ไฟล์เสียงต้นฉบับที่ตัด (เก็บไว้ตอน clone)
+
+- `saharat_8min_hq.m4a` (8 นาที, 128kbps, 7.4 MB) — ที่ใช้ clone
+- backup: 4-min และ full version
 
 ---
 
