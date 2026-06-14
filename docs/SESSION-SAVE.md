@@ -1,143 +1,166 @@
-# Session Save — EP1 พร้อมอัป, EP2-15 รอ
-## บันทึก: 2026-06-14 (Asia/Bangkok 07:33)
+# Session Save — ซีรีส์ 5 ตอนพร้อม Handoff
+## บันทึก: 2026-06-14 (Asia/Bangkok 08:17)
 
 ---
 
-## ✅ EP1 — เสร็จสมบูรณ์ พร้อมอัป YouTube
+## ✅ Series Complete — แสงที่ความยาวคลื่นสิบสามจุดห้า (5 ตอน)
 
-### Asset ทั้งหมด
+### สถานะแต่ละตอน
 
-| ไฟล์ | ที่อยู่ใน sandbox | บน GitHub | ในแชต |
-|---|---|---|---|
-| Manuscript polished | `docs/MANUSCRIPT-full-novel-polished.md` | ✅ | — |
-| Audiobook script | `docs/youtube-ep1-audiobook-script.md` | ✅ | — |
-| Pipeline handoff | `docs/ep1-pipeline-handoff.md` | ✅ | — |
-| master.json + titles.json | `wavelength135_production/` | ✅ | ✅ |
-| RELAY_TO_MAC_AGENT.md | `wavelength135_production/` | ✅ | ✅ |
-| ep01-metadata.md | `wavelength135_production/ep01/` | ✅ | ✅ |
-| Narration 5 mp3 แยก + 1 รวม | `voiceover-ep1/`, `wavelength135_production/ep01/audio/` | ✅ (รวม) | ✅ |
-| 45 ภาพ cinematic (fal.ai) | `assets/images-ep1/` | ❌ (gitignored) | ✅ (zip) |
-| Card 2 ใบ | `wavelength135_production/ep01/cards/` | ✅ | ✅ |
-| ep01.mp4 (115 MB) | `assets/ep1-video.mp4`, `wavelength135_production/ep01/ep01.mp4` | ❌ (เกิน limit) | ✅ (5 chunks + zip) |
+| EP | ชื่อ | บท | Audio | Images | Video | Status |
+|---|---|---|---|---|---|---|
+| **01** | ลุง | 1-3 | ✅ generated | ✅ generated | ✅ built (115 MB) | **Ready to upload** |
+| **02** | หกเปอร์เซ็นต์ | 4-8 | 🟡 script ready | 🟡 script ready | ⏸ pending | Scripts on GitHub |
+| **03** | กำแพงที่ทำด้วยแสง | 9-11 | 🟡 script ready | 🟡 script ready | ⏸ pending | Scripts on GitHub |
+| **04** | สิ่งที่ส่งต่อ | 12-14 | 🟡 script ready | 🟡 script ready | ⏸ pending | Scripts on GitHub |
+| **05** | อีกฝั่งกำแพง (จบ) | 15 | 🟡 script ready | 🟡 script ready | ⏸ pending | Scripts on GitHub |
 
-### URL ดาวน์โหลด GitHub
-
+### ทุก script + config push GitHub แล้ว
 ```
-Branch zip:
-https://github.com/saharata/linebot-AI-health/archive/refs/heads/claude/research-solo-company-fxyhr.zip
-
-Folder ep01:
-https://github.com/saharata/linebot-AI-health/tree/claude/research-solo-company-fxyhr/wavelength135_production
+https://github.com/saharata/linebot-AI-health/tree/claude/research-solo-company-fxyhr
 ```
 
-### Upload status
-
-- [ ] ดาวน์โหลดจาก GitHub / chunks ในแชต → Mac
-- [ ] Unzip + รวม mp4 chunks
-- [ ] Mac-agent อ่าน `RELAY_TO_MAC_AGENT.md`
-- [ ] `yt_upload.py ep01-metadata.md ep01.mp4` → ได้ลิงก์ Unlisted
-- [ ] ฟังที่ YouTube → ถ้า OK เปลี่ยน Public
-
 ---
 
-## 🟡 EP2-15 — รอเริ่ม (workflow พร้อม)
-
-### ตอนที่จะทำต่อ (ตาม titles.json)
-
-| EP | ชื่อ | บทในนิยาย |
-|---|---|---|
-| 02 | หกเปอร์เซ็นต์ | บท 4-8 (act 2) |
-| 03 | เอวา (กำแพง) | merged into 02 if shorter |
-| 04 | สิ่งที่อยู่ในกล่อง | — |
-| 05 | จดหมายที่ไม่ถูกส่ง | — |
-| ... | ... | ... |
-| 15 | เครื่องแรก และจดหมาย | บทสุดท้าย |
-
-### Workflow ที่พิสูจน์แล้วจาก EP1 (ทำซ้ำได้)
-
-1. **Audiobook script** — copy บทจาก `MANUSCRIPT-full-novel-polished.md` ใส่ใน `scripts/generate-audiobook-epN.js`
-2. **Narration**: `npm run audiobook-ep1` (ปรับเป็น ep2) → ~5 ไฟล์ mp3
-3. **Concat audio**: ffmpeg → `epN_full_narration.mp3`
-4. **45 ภาพ**: ปรับ prompts ใน `scripts/generate-images-ep1.js` → `npm run images-ep1` → ~$1
-5. **Build video**: `bash scripts/build-video-ep1.sh` ปรับ paths → mp4
-6. **Bundle**: structure `wavelength135_production/epN/` แบบเดียวกัน
-7. **Send**: GitHub push (small files) + chunks ในแชต (mp4)
-8. **Mac-agent อัป**
-
-### ต้นทุนต่อตอน
-- fal.ai 45 ภาพ: ~$1
-- ElevenLabs: free tier (10K chars/month — 15 ตอนอาจเกิน, ต้อง upgrade)
-- Compute: $0
-- **รวม: ~$1/EP × 15 = ~$15** สำหรับซีรีส์ทั้งหมด
-
----
-
-## 🔐 Security — ต้องทำก่อนปิด session
-
-แชตนี้ log key 2 ตัว — **rotate ก่อนปิด**:
-
-| Service | Key (ตัด) | ที่ rotate |
-|---|---|---|
-| fal.ai | `87ac039e-600d-4dd3-8fd2-...` | https://fal.ai/dashboard/keys |
-| ElevenLabs | `fd6dffa17...` | https://elevenlabs.io → Profile → API Keys |
-
----
-
-## 📁 โครงสร้าง repo สุดท้าย
+## 📁 สิ่งที่อยู่บน GitHub (Mac-agent ดึงไปใช้ได้)
 
 ```
 linebot-AI-health/
-├── docs/                          # 14 ไฟล์ research + script + nov
+├── docs/                              # 17 ไฟล์ research + scripts + nov
 │   ├── MANUSCRIPT-full-novel-polished.md  ⭐ นิยายเต็ม
 │   ├── novel-selling-kit.md
 │   ├── youtube-ep1-audiobook-script.md
 │   ├── youtube-hook-strategy.md
 │   ├── ep1-pipeline-handoff.md
-│   ├── fnd-migraine-strategy.md
-│   ├── short-film-uncle-shotlist.md
-│   └── ...
+│   ├── SESSION-SAVE.md                ← ไฟล์นี้
+│   └── ... (clinic project docs)
 ├── scripts/
-│   ├── generate-voiceover.js          (5 short VO สำหรับหนัง EP1)
-│   ├── generate-audiobook-ep1.js      (5 long VO สำหรับ audiobook)
-│   ├── generate-images-ep1.js         (45 ภาพ fal.ai)
+│   ├── generate-audiobook-ep[1-5].js  ⭐ 5 audio generators
+│   ├── generate-images-ep[1-5].js     ⭐ 5 image generators
 │   ├── build-video-ep1.sh             (ffmpeg → mp4)
 │   ├── build-ebook.sh                 (manuscript → EPUB + PDF)
-│   └── test-thai-voices.js            (A/B test)
-├── wavelength135_production/      ⭐ Production bundle
-│   ├── master.json
-│   ├── titles.json
-│   ├── RELAY_TO_MAC_AGENT.md
-│   └── ep01/
+│   └── ... (clinic + voice tests)
+├── wavelength135_production/          ⭐ Production bundle
+│   ├── master.json                    (5-episode config + playlist)
+│   ├── titles.json                    (5 episode titles)
+│   ├── RELAY_TO_MAC_AGENT.md          ⭐ Mac-agent ใช้คู่มือนี้
+│   └── ep01/                          (EP1 บันเดิลครบแล้ว)
 │       ├── ep01-metadata.md
 │       ├── audio/ep01_narration.mp3
-│       └── cards/card_main.jpg, card_alt.jpg
-├── assets/
-│   ├── cover.svg/png
-│   ├── title-overlay.svg/png
-│   └── (gitignored: images-ep1/, ep1-video.mp4, novel.epub, novel.pdf, chunks/)
-├── public/                        (LIFF pages — clinic project ที่ทำก่อนหน้า)
-│   ├── screener.html
-│   ├── booking.html
-│   └── ...
-├── server.js                       (Express — clinic project)
-└── package.json
+│       └── cards/card_main.jpg + card_alt.jpg
+├── public/                            (LIFF — clinic project)
+├── server.js                          (Express — clinic project)
+└── package.json                       (10 npm run scripts สำหรับ gen)
 ```
-
-## 🎬 Workspace อื่นที่มีใน session (ไม่ใช่ EP1)
-
-| โปรเจกต์ | สถานะ |
-|---|---|
-| FND Migraine clinic strategy + MVP code | ✅ Complete in `docs/` + `server.js` |
-| EUV นิยาย 15 บท + EPUB + PDF | ✅ Complete |
-| ปกหนังสือ SVG | ✅ Complete |
-| Cover photoreal (nano banana) | ⚠️ user มีภาพ แต่ผมไม่มีในเครื่อง |
-| หนังสั้น "ลุง" 60s (Seedance) | ✅ Complete (จาก session ก่อน) |
 
 ---
 
-## ต่อจากตรงนี้
+## 🎬 Workflow handoff (Mac-agent ทำต่อ)
 
-**ทันที**: รวม chunks → unzip → Mac-agent อัป EP1
-**ถัดไป**: เริ่ม EP2 ด้วย workflow เดียวกัน
+### 1. Clone branch
+```bash
+cd ~/Downloads
+git clone -b claude/research-solo-company-fxyhr \
+  https://github.com/saharata/linebot-AI-health.git wavelength135
+cd wavelength135
+npm install
+```
 
-ทุกอย่างที่ทำใน session นี้ push อยู่ใน branch `claude/research-solo-company-fxyhr` หยิบมาทำต่อเมื่อไหร่ก็ได้
+### 2. ใช้ key Mac-side (ไม่ส่งใน chat)
+```bash
+cp .env.example .env
+# แก้ .env ใส่ ELEVENLABS_API_KEY + FAL_KEY
+```
+
+### 3. Gen ทั้งซีรีส์ EP2-5
+```bash
+for EP in 2 3 4 5; do npm run audiobook-ep$EP; done
+for EP in 2 3 4 5; do npm run images-ep$EP & done; wait
+```
+
+### 4. Build + upload (ใช้ podcast-pipeline)
+```bash
+# อ่านคำสั่งครบใน:
+cat wavelength135_production/RELAY_TO_MAC_AGENT.md
+```
+
+---
+
+## 💰 ต้นทุนรวม session
+
+| Item | EP1 (done) | EP2-5 (รออัป) | รวม |
+|---|---|---|---|
+| ElevenLabs | free tier ($0) | ~24K chars (อาจเกิน free) | $0-22 |
+| fal.ai | ~$1.13 | ~$4.50 | ~$5.63 |
+| ffmpeg compute | $0 | $0 | $0 |
+| YouTube upload | 0 (Mac) | 0 (Mac) | $0 |
+| **รวม** | **~$1.13** | **~$5-27** | **~$6-28** |
+
+---
+
+## 🔐 Security — Keys ที่ revoke แล้ว (✅ ดี)
+
+ทั้ง 2 keys ที่ user paste ในแชตช่วงเช้า — revoke เรียบร้อย (Mac-agent ใช้ key ใหม่ที่อยู่บน Mac เท่านั้น):
+
+| Service | Old key (revoked) | New key location |
+|---|---|---|
+| fal.ai | `87ac039e...` | `~/.zshrc` บน Mac |
+| ElevenLabs | `fd6dffa1...` | Mac-side env |
+
+---
+
+## 📊 สิ่งที่ทำใน session ทั้งหมด
+
+### 1. FND Migraine clinic strategy (จาก session ก่อน)
+- ✅ Strategy + marketing plan + 30-day MVP
+- ✅ Codebase: LINE bot + LIFF + symptom checker + payment + booking
+- ✅ Hosting: Vercel-ready
+- 📁 ใน `public/`, `server.js`, `docs/fnd-*`, `docs/in-clinic-*`
+
+### 2. EUV นิยาย "แสงที่ความยาวคลื่นสิบสามจุดห้า"
+- ✅ 15 บท ครบ (manuscript polished)
+- ✅ EPUB + PDF พร้อมขาย
+- ✅ ปก SVG + nano banana cover
+- ✅ Selling kit (blurb + แพลตฟอร์ม + pricing)
+- ✅ นามปากกา "เหวินลี่"
+- 📁 ใน `docs/MANUSCRIPT-*`, `docs/novel-selling-kit.md`, `assets/cover.*`
+
+### 3. หนังสั้น "ลุง" 60 วินาที (จาก session ก่อน)
+- ✅ 6 Seedance video clips
+- ✅ 5 ElevenLabs voiceover (Alice + Liam)
+- ✅ Storyboard + script
+- 📁 อยู่บนเครื่อง user (Mac), scripts ใน `scripts/generate-voiceover.js`
+
+### 4. Audiobook series 5 ตอน ⭐ (ทำใหม่ใน session นี้)
+- ✅ EP1 พร้อมอัป YouTube (mp4 + metadata + audio + cards)
+- ✅ EP2-5 scripts ครบ (audio + images)
+- ✅ Master config + titles + relay
+- ✅ Build pipeline (ffmpeg + Mac podcast-pipeline)
+
+---
+
+## 🎯 Next steps for Mac-agent
+
+**Priority 1**: Upload EP1 → ได้ลิงก์ unlisted → user ฟัง
+```bash
+cd wavelength135_production/ep01
+yt_upload.py ep01-metadata.md ep01.mp4
+```
+
+**Priority 2**: Gen EP2-5 (รวม ~30-60 นาที)
+```bash
+for EP in 2 3 4 5; do npm run audiobook-ep$EP; done
+for EP in 2 3 4 5; do npm run images-ep$EP & done; wait
+```
+
+**Priority 3**: Build mp4 + upload เข้า playlist เดียวกัน
+ดู `wavelength135_production/RELAY_TO_MAC_AGENT.md`
+
+---
+
+## Last commit
+```
+49e1e84 — Add EP3-5 scripts + finalize 5-episode series structure
+```
+
+ทุกอย่างหยิบมาทำต่อได้ — ไม่ติดอะไรค้าง
